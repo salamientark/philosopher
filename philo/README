@@ -1,0 +1,4 @@
+- Add max_eat_nbr in the while condition
+- Wait for every thread to create before first eating
+- Add algorithm (first % 2 philo eat then  + 1 % 2)
+- Improve execution speed

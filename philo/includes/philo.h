@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/21 11:59:07 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/27 09:00:04 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,37 +24,68 @@
 # define INT_MIN -2147483648
 # define BAD_ARG_NBR "zbeub"
 
+
+// NEW DATA STRUCTURE 
+
 typedef struct s_philo
 {
     pthread_t       tid;
+    int             id;
     int             alive;
-    int             pos;
-    int             *time_to_die;
-    int             *time_to_eat;
-    int             *time_to_sleep;
-    int             max_nbr_of_eat;
-    int             *simulation_end;
-    pthread_mutex_t *std_lock;
-    pthread_mutex_t *fork[2];
+    int             meal_left;
     struct timeval  last_meal;
+    struct s_data   *data;
 }               t_philo;
 
-/*
-    DATA STRUCTURE
-*/
 typedef struct s_data
 {
     int             philo_nbr;
-    int             time_to_die;
-    int             time_to_eat;
-    int             time_to_sleep;
-    int             max_nbr_of_eat;
-    int             simulation_end;
+    unsigned int    time_to_die;
+    unsigned int    time_to_eat;
+    unsigned int    time_to_sleep;
+    unsigned int    max_nbr_of_eat;
+    int             *simulation_end;
     struct timeval  simulation_start_time;
-    pthread_mutex_t std_lock;
+    pthread_mutex_t stdout_lock;
+    pthread_mutex_t stderr_lock;
     pthread_mutex_t *fork;
     t_philo         *philosopher;
 }               t_data;
+
+// OLD STRUCT
+
+// typedef struct s_philo
+// {
+//     pthread_t       tid;
+//     int             alive;
+//     int             pos;
+//     unsigned int    *time_to_die;
+//     unsigned int    *time_to_eat;
+//     unsigned int    *time_to_sleep;
+//     unsigned int    max_nbr_of_eat;
+//     int             *simulation_end;
+//     pthread_mutex_t *std_lock;
+//     pthread_mutex_t *fork[2];
+//     struct timeval  last_meal;
+//     struct timeval  start_time;
+// }               t_philo;
+
+// /*
+//     DATA STRUCTURE
+// */
+// typedef struct s_data
+// {
+//     int             philo_nbr;
+//     unsigned int    time_to_die;
+//     unsigned int    time_to_eat;
+//     unsigned int    time_to_sleep;
+//     unsigned int    max_nbr_of_eat;
+//     int             *simulation_end;
+//     struct timeval  simulation_start_time;
+//     pthread_mutex_t std_lock;
+//     pthread_mutex_t *fork;
+//     t_philo         *philosopher;
+// }               t_data;
 
 // ERROR.c
 void    exit_error(char *prog, char *msg);
@@ -64,7 +95,7 @@ void    exit_simulation(t_data *data_p);
 t_data  init_simulation(int ac, char **av);
 
 // PHILO.c
-void    *philo(void *param);
+void    *philosoph(void *param);
 
 // PRINT.c
 void    log_philo(t_philo *philo, char *msg);

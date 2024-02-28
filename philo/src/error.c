@@ -6,11 +6,23 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:58:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/20 17:06:10 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/26 22:06:20 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
+
+void    print_error(char *msg, pthread_mutex_t *std_err_lock)
+{
+    int len;
+
+    len = 0;
+    while (msg[len])
+        len++;
+    pthread_mutex_lock(std_err_lock);
+    write(2, msg, len);
+    pthread_mutex_unlock(std_err_lock);
+}
 
 void    exit_error(char *prog, char *msg)
 {
