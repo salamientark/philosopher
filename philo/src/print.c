@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 14:24:57 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 12:24:12 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 12:36:11 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,18 @@ void    log_philo(t_philo *philo, char *msg)
     else
         timestamp = -1;
     pthread_mutex_lock(&philo->data->stdout_lock);
+    if (simulation_stopped(philo))
+    {
+        pthread_mutex_unlock(&philo->data->stdout_lock);
+        return ;
+    }
     printf("%d ms %d %s\n", timestamp, philo->id + 1, msg);
+    pthread_mutex_lock(&philo->data->dead_lock);
+    if (*msg == 'd')
+    {
+        philo->alive = 0;
+        philo->data->simulation_end = 1;
+    }
+    pthread_mutex_unlock(&philo->data->dead_lock);
     pthread_mutex_unlock(&philo->data->stdout_lock);
 }
