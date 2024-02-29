@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 10:03:52 by madlab           ###   ########.fr       */
+/*   Updated: 2024/02/29 11:37:41 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ static void	init_data(t_data *data_p, int ac, char **av)
 	data_p->time_to_die = ft_atoi(av[2]);
 	data_p->time_to_eat = ft_atoi(av[3]);
 	data_p->time_to_sleep = ft_atoi(av[4]);
+	data_p->max_nbr_of_eat = -1;
 	if (ac == 6)
 		data_p->max_nbr_of_eat = ft_atoi(av[5]);
 	if (data_p->philo_nbr <= 0 || data_p->time_to_die <= 0

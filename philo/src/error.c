@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:58:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 00:37:59 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 10:11:31 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ void    exit_simulation(t_data *data_p)
     }
     pthread_mutex_destroy(&(data_p->stdout_lock));
     pthread_mutex_destroy(&(data_p->dead_lock));
+    pthread_mutex_destroy(&(data_p->meal_lock));
     free(data_p->fork);
     free(data_p->philosopher);
     free(data_p);
