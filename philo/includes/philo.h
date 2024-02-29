@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 10:02:39 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 12:09:52 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,11 @@
 
 # define INT_MAX 2147483647
 # define INT_MIN -2147483648
-# define BAD_ARG_NBR "zbeub"
+# define BAD_ARG_NBR "./philo [ philo_nbr ] [ time_to_die ] [ time_to_eat ] \
+[ time_to_sleep ] *[ number_of_meal_each_philo_must_have ]*\n\
+number_of_meal_each_philo_must_have : Optionnal argument"
+# define INVALID_ARG "Argument need to be strictly positive integer\n\
+Except [ philo_nbr ], which need to be superior to 1"
 
 
 // Philosoph structure

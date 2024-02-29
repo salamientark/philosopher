@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 11:37:41 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 12:18:33 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,19 @@ t_data	*init_simulation(int ac, char **av)
 	if (!data)
 		exit_error("init_simulation", "malloc error");
 	init_data(data, ac, av);
+	if (data->philo_nbr == 1)
+	{
+		printf("0 ms 1 has taken a fork\n");
+		usleep(1000 * data->time_to_die);
+		printf("%d ms 1 died\n", data->time_to_die);
+	}
+	if (data->philo_nbr == 1 || data->max_nbr_of_eat == 0)
+	{
+		free(data->fork);
+		free(data->philosopher);
+		free(data);
+		exit(EXIT_SUCCESS);
+	}
 	init_mutex(data);
 	init_philo(data);
 	return (data);
