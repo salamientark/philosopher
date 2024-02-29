@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 14:24:57 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/28 09:05:18 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/28 21:07:50 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 
 void    log_philo(t_philo *philo, char *msg)
 {
-    if (philo->alive == 1)
-        return ;
     struct timeval  right_now;
     int             timestamp;
-
+    
+    if (simulation_stopped(philo))
+        return ;
     if(gettimeofday(&right_now, NULL) == 0)
         timestamp = 1000 * (right_now.tv_sec - philo->data->simulation_start_time.tv_sec)
             + (right_now.tv_usec - philo->data->simulation_start_time.tv_usec) / 1000;
