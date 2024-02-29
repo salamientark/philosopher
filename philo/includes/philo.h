@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 14:04:12 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 14:37:45 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,11 @@ typedef struct s_philo
 typedef struct s_data
 {
     int             philo_nbr;
-    unsigned int    time_to_die;
-    unsigned int    time_to_eat;
-    unsigned int    time_to_sleep;
-    unsigned int    max_nbr_of_eat;
+    long             time_to_die;
+    long             time_to_eat;
+    long             time_to_sleep;
+    int             meal_per_philo;
+    long            meal_to_take;
     int             simulation_end;
     struct timeval  simulation_start_time;
     pthread_mutex_t stdout_lock;

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 14:03:17 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 16:37:25 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,17 @@ void    philo_eat(t_philo *philo)
     log_philo(philo, "is eating");
     pthread_mutex_lock(&philo->data->meal_lock);
     gettimeofday(&philo->last_meal, NULL);
+    if (philo->meal_left > 0)
+        philo->data->meal_to_take--;
+    if (philo->data->meal_to_take == 0)
+    {
+        pthread_mutex_lock(&philo->data->dead_lock);
+        philo->data->simulation_end = 1;
+        pthread_mutex_unlock(&philo->data->dead_lock);
+    }
     pthread_mutex_unlock(&philo->data->meal_lock);
+    if (philo->meal_left > 0)
+        philo->meal_left--;
     /*
     if(philo->data->time_to_eat > philo->data->time_to_die)
         wait(time_to_die - now)
@@ -128,10 +138,13 @@ void    *better_philo(void *param)
 
     philosopher = (t_philo *)param;
     if (philosopher->id % 2)
-        usleep(9000);
+        usleep(5000);
     while(philosopher->alive)
     {
         philo_eat(philosopher);
+        if (philosopher->meal_left == 0)
+            usleep(9000);
+            // return (NULL); // Pour les rageux
         philo_sleep(philosopher);
         if (philosopher->alive)
             log_philo(philosopher, "is thinking");
@@ -140,8 +153,6 @@ void    *better_philo(void *param)
             return ((void) pthread_mutex_unlock(&philosopher->data->dead_lock),
                 NULL);
         pthread_mutex_unlock(&philosopher->data->dead_lock);
-        
-        // usleep(9000);
     }
     return (NULL);
 }

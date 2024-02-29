@@ -6,12 +6,13 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 12:18:33 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/02/29 16:37:05 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
+// Return -2 in case of invalid arg
 static int	ft_atoi(char *s)
 {
 	long	nbr;
@@ -33,11 +34,11 @@ static int	ft_atoi(char *s)
 	{
 		nbr = 10 * nbr + (s[index] - '0');
 		if ((sign && nbr > INT_MAX) || (-nbr) < INT_MIN)
-			return (0);
+			return (-2);
 		index++;
 	}
 	if (s[index])
-		return (0);
+		return (-2);
 	return (sign * nbr);
 }
 
@@ -48,12 +49,15 @@ static void	init_data(t_data *data_p, int ac, char **av)
 	data_p->time_to_die = ft_atoi(av[2]);
 	data_p->time_to_eat = ft_atoi(av[3]);
 	data_p->time_to_sleep = ft_atoi(av[4]);
-	data_p->max_nbr_of_eat = -1;
+	data_p->meal_per_philo = -1;
+	data_p->meal_to_take = -1;
 	if (ac == 6)
-		data_p->max_nbr_of_eat = ft_atoi(av[5]);
-	if (data_p->philo_nbr <= 0 || data_p->time_to_die <= 0
-		|| data_p->time_to_eat <= 0 || data_p->time_to_sleep <= 0
-		|| (ac == 6 && data_p->max_nbr_of_eat == 0))
+		data_p->meal_per_philo = ft_atoi(av[5]);
+	if (ac == 6)
+		data_p->meal_to_take = (data_p->meal_per_philo * data_p->philo_nbr);
+	if (data_p->philo_nbr <= 0 || data_p->philo_nbr > 200 
+		|| data_p->time_to_die <= 0 || data_p->time_to_eat <= 0
+		|| data_p->time_to_sleep <= 0 || data_p->meal_per_philo == -2)
 		return (free(data_p), exit_error("philo", BAD_ARG_NBR));
 	if (gettimeofday(&data_p->simulation_start_time, NULL) != 0)
 		return (free(data_p), exit_error("init_data", "gettimofday failed"));
@@ -78,7 +82,7 @@ static void	init_philo(t_data *data)
 	{
 		data->philosopher[index].id = index;
 		data->philosopher[index].alive = 1;
-		data->philosopher[index].meal_left = data->max_nbr_of_eat;
+		data->philosopher[index].meal_left = data->meal_per_philo;
 		data->philosopher[index].last_meal = data->simulation_start_time;
 		data->philosopher[index].data = data;
 		if (pthread_create(&data->philosopher[index].tid, NULL,
@@ -135,9 +139,9 @@ t_data	*init_simulation(int ac, char **av)
 	{
 		printf("0 ms 1 has taken a fork\n");
 		usleep(1000 * data->time_to_die);
-		printf("%d ms 1 died\n", data->time_to_die);
+		printf("%ld ms 1 died\n", data->time_to_die);
 	}
-	if (data->philo_nbr == 1 || data->max_nbr_of_eat == 0)
+	if (data->philo_nbr == 1 || data->meal_to_take == 0)
 	{
 		free(data->fork);
 		free(data->philosopher);
