@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/03 22:18:39 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/04 00:35:55 by madlab           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,49 +28,49 @@ number_of_meal_each_philo_must_have : Optionnal argument"
 # define INVALID_ARG "Argument need to be strictly positive integer\n\
 Except [ philo_nbr ], which need to be superior to 1"
 
-
 // Philosoph structure
 typedef struct s_philo
 {
-    pthread_t       tid;
-    int             id;
-    int             alive;
-    int             meal_left;
-    struct timeval  last_meal;
-    struct s_data   *data;
-}               t_philo;
+	pthread_t		tid;
+	int				id;
+	int				alive;
+	int				meal_left;
+	struct timeval	last_meal;
+	struct s_data	*data;
+}				t_philo;
 
 // Shared data structure
 typedef struct s_data
 {
-    int             philo_nbr;
-    long             time_to_die;
-    long             time_to_eat;
-    long             time_to_sleep;
-    int             meal_per_philo;
-    long            meal_to_take;
-    int             simulation_end;
-    struct timeval  simulation_start_time;
-    pthread_mutex_t stdout_lock;
-    pthread_mutex_t dead_lock;
-    pthread_mutex_t meal_lock;
-    pthread_mutex_t *fork;
-    t_philo         *philosopher;
-}               t_data;
+	int				philo_nbr;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	int				meal_per_philo;
+	long			meal_to_take;
+	int				simulation_end;
+	struct timeval	simulation_start_time;
+	pthread_mutex_t	stdout_lock;
+	pthread_mutex_t	dead_lock;
+	pthread_mutex_t	meal_lock;
+	pthread_mutex_t	*fork;
+	t_philo			*philosopher;
+}				t_data;
 
 // ERROR.c
-void    exit_error(char *prog, char *msg);
-void    exit_simulation(t_data *data_p);
+void	exit_error(char *prog, char *msg);
+void	exit_simulation(t_data *data_p);
 
 // INIT_SIMULATION.C
-t_data  *init_simulation(int ac, char **av);
+t_data	*init_simulation(int ac, char **av);
 
 // PHILO.c
-int     simulation_stopped(t_data *data);
-void    *better_philo(void *param);
+void	*philo_routine(void *param);
 
 // PRINT.c
-void    log_philo(t_philo *philo, char *msg);
-void    action(t_philo *philo, char *msg);
+void	log_philo(t_philo *philo, char *msg);
+
+// Main.c
+int		simulation_stopped(t_data *data);
 
 #endif

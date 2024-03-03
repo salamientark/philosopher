@@ -10,7 +10,8 @@ SRC_DIR = src
 SRC_FILE = error.c \
 			print.c \
 			init_simulation.c \
-			philo.c
+			philo.c \
+			main.c
 			   
 ### HEADER FILE ###
 HEADER_DIR = includes

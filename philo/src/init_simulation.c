@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 16:37:05 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/04 00:25:57 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ static void	init_philo(t_data *data)
 		data->philosopher[index].last_meal = data->simulation_start_time;
 		data->philosopher[index].data = data;
 		if (pthread_create(&data->philosopher[index].tid, NULL,
-				better_philo, &data->philosopher[index]) != 0)
+				philo_routine, &data->philosopher[index]) != 0)
 		{
 			printf("init_philo; pthread_create error\n");
 			exit_simulation(data);
