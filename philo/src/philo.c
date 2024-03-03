@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/03 22:40:54 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/04 00:18:48 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,14 @@ void    philo_sleep(t_philo *philo)
     unsigned int    ms_since_last_meal;
     struct timeval  now;
 
-    if (simulation_stopped(philo->data))
-        return ;
+    // if (simulation_stopped(philo->data))
+    //     return ;
     gettimeofday(&now, NULL);
-    // pthread_mutex_lock(&philo->data->meal_lock);
     ms_since_last_meal = 1000 * (now.tv_sec - philo->last_meal.tv_sec)
         + (now.tv_usec - philo->last_meal.tv_usec) / 1000;
     // pthread_mutex_unlock(&philo->data->meal_lock);
-    if (simulation_stopped(philo->data))
-        return ;
+    // if (simulation_stopped(philo->data))
+    //     return ;
     log_philo(philo, "is sleeping");
     if (ms_since_last_meal + philo->data->time_to_sleep > philo->data->time_to_die)
     {
@@ -88,18 +87,8 @@ void    philo_eat(t_philo *philo)
     first_fork = (philo->id + (philo->id % 2 == 1)) % philo->data->philo_nbr;
     second_fork = (philo->id + (philo->id % 2 == 0)) % philo->data->philo_nbr;
     pthread_mutex_lock(&(philo->data->fork[first_fork]));
-    // CHECK if alive
-    if (simulation_stopped(philo->data))
-        return ((void) pthread_mutex_unlock(&philo->data->fork[first_fork]));
     log_philo(philo, "has taken a fork");
     pthread_mutex_lock(&(philo->data->fork[second_fork]));
-    // Check if alive
-    if (simulation_stopped(philo->data))
-    {
-        pthread_mutex_unlock(&(philo->data->fork[first_fork]));
-        pthread_mutex_unlock(&(philo->data->fork[second_fork]));
-        return ;
-    }
     log_philo(philo, "has taken a fork");
     log_philo(philo, "is eating");
     pthread_mutex_lock(&philo->data->meal_lock);
@@ -109,18 +98,12 @@ void    philo_eat(t_philo *philo)
     pthread_mutex_unlock(&philo->data->meal_lock);
     if (philo->meal_left > 0)
         philo->meal_left--;
-    /*
-    if(philo->data->time_to_eat > philo->data->time_to_die)
-        wait(time_to_die - now)
-        die
-    eat
-    */
-    if (philo->data->time_to_eat > philo->data->time_to_die)
-    {
-        usleep(1000 * philo->data->time_to_die);
-        log_philo(philo, "died");
-    }
-    else
+    // if (philo->data->time_to_eat > philo->data->time_to_die)
+    // {
+    //     usleep(1000 * philo->data->time_to_die);
+    //     log_philo(philo, "died");
+    // }
+    // else
         usleep(1000 * philo->data->time_to_eat);
     pthread_mutex_unlock(&(philo->data->fork[first_fork]));
     pthread_mutex_unlock(&(philo->data->fork[second_fork]));
@@ -160,7 +143,7 @@ void    monitor(t_data *data_p)
     
 
     index = 0;
-    while (1)
+    while (simulation_stopped(data_p) == 0)
     {
         if (index == data_p->philo_nbr)
             index = 0;
@@ -170,10 +153,10 @@ void    monitor(t_data *data_p)
         last_meal_cp = data_p->philosopher[index].last_meal;
         if (data_p->meal_to_take == 0)
         {
+            pthread_mutex_unlock(&data_p->meal_lock);
             pthread_mutex_lock(&data_p->dead_lock);
             data_p->simulation_end = 1;
             pthread_mutex_unlock(&data_p->dead_lock);
-            pthread_mutex_unlock(&data_p->meal_lock);
             return ;
         }
         pthread_mutex_unlock(&data_p->meal_lock);
@@ -181,10 +164,10 @@ void    monitor(t_data *data_p)
         if (1000 * (now.tv_sec - last_meal_cp.tv_sec) + (now.tv_usec
             - last_meal_cp.tv_usec) / 1000 > data_p->time_to_die)
             log_philo(&data_p->philosopher[index], "died");
-        if (simulation_stopped(data_p))
-            return ;
+        // if (simulation_stopped(data_p))
+        //     return ;
         index++;
-        usleep(10);
+        // usleep(10);
     }
 }
 
