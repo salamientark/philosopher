@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/02/29 14:37:45 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/03 22:18:39 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,11 @@ void    exit_simulation(t_data *data_p);
 t_data  *init_simulation(int ac, char **av);
 
 // PHILO.c
-int     simulation_stopped(t_philo *philo);
+int     simulation_stopped(t_data *data);
 void    *better_philo(void *param);
 
 // PRINT.c
 void    log_philo(t_philo *philo, char *msg);
+void    action(t_philo *philo, char *msg);
 
 #endif
