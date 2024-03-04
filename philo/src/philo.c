@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:43:40 by madlab           ###   ########.fr       */
+/*   Updated: 2024/03/04 00:58:06 by madlab           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ void	*philo_routine(void *param)
 	t_philo	*philosopher;
 
 	philosopher = (t_philo *)param;
+	while (simulation_stopped(philosopher->data) == -1)
+		usleep(10);
 	if (philosopher->id % 2)
 		usleep(5000);
 	while (1)

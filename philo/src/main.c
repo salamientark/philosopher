@@ -6,22 +6,11 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:38:29 by madlab           ###   ########.fr       */
+/*   Updated: 2024/03/04 01:05:59 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-
-int	simulation_stopped(t_data *data)
-{
-	int	simulation_stoped;
-
-	simulation_stoped = 0;
-	pthread_mutex_lock(&data->dead_lock);
-	simulation_stoped = data->simulation_end;
-	pthread_mutex_unlock(&data->dead_lock);
-	return (simulation_stoped);
-}
 
 /*
 	Return:

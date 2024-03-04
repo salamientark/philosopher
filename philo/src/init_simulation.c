@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:25:57 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/04 01:12:11 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,21 @@ static int	ft_atoi(char *s)
 			return (-2);
 		index++;
 	}
-	if (s[index])
+	if (s[index] || sign == -1)
 		return (-2);
 	return (sign * nbr);
 }
 
+/*
+	Init data
+	Simulation_end :
+	-1 : thread are created -> every philo wait
+	0  : Simulation start / Run
+	1  : Simulation stop
+*/
 static void	init_data(t_data *data_p, int ac, char **av)
 {
-	data_p->simulation_end = 0;
+	data_p->simulation_end = -1;
 	data_p->philo_nbr = ft_atoi(av[1]);
 	data_p->time_to_die = ft_atoi(av[2]);
 	data_p->time_to_eat = ft_atoi(av[3]);
@@ -55,12 +62,10 @@ static void	init_data(t_data *data_p, int ac, char **av)
 		data_p->meal_per_philo = ft_atoi(av[5]);
 	if (ac == 6)
 		data_p->meal_to_take = (data_p->meal_per_philo * data_p->philo_nbr);
-	if (data_p->philo_nbr <= 0 || data_p->philo_nbr > 200 
+	if (data_p->philo_nbr <= 0 || data_p->philo_nbr > 200
 		|| data_p->time_to_die <= 0 || data_p->time_to_eat <= 0
 		|| data_p->time_to_sleep <= 0 || data_p->meal_per_philo == -2)
 		return (free(data_p), exit_error("philo", BAD_ARG_NBR));
-	if (gettimeofday(&data_p->simulation_start_time, NULL) != 0)
-		return (free(data_p), exit_error("init_data", "gettimofday failed"));
 	data_p->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
 			* data_p->philo_nbr);
 	if (!data_p->fork)
@@ -83,16 +88,22 @@ static void	init_philo(t_data *data)
 		data->philosopher[index].id = index;
 		data->philosopher[index].alive = 1;
 		data->philosopher[index].meal_left = data->meal_per_philo;
-		data->philosopher[index].last_meal = data->simulation_start_time;
 		data->philosopher[index].data = data;
 		if (pthread_create(&data->philosopher[index].tid, NULL,
 				philo_routine, &data->philosopher[index]) != 0)
 		{
-			printf("init_philo; pthread_create error\n");
+			printf("init_philo: pthread_create error\n");
 			exit_simulation(data);
 		}
 		index++;
 	}
+	index = -1;
+	gettimeofday(&data->simulation_start_time, NULL);
+	while (++index < data->philo_nbr)
+		data->philosopher[index].last_meal = data->simulation_start_time;
+	pthread_mutex_lock(&data->dead_lock);
+	data->simulation_end = 0;
+	pthread_mutex_unlock(&data->dead_lock);
 }
 
 static void	init_mutex(t_data *data)
