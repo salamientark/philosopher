@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:58:06 by madlab           ###   ########.fr       */
+/*   Updated: 2024/03/05 17:08:38 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,19 +49,18 @@ static void	philo_eat(t_philo *philo)
 	log_philo(philo, "is eating");
 	pthread_mutex_lock(&philo->data->meal_lock);
 	gettimeofday(&philo->last_meal, NULL);
-	if (philo->meal_left > 0)
-		philo->data->meal_to_take--;
+	philo->data->meal_to_take -= (philo->meal_left > 0);
 	pthread_mutex_unlock(&philo->data->meal_lock);
-	if (philo->meal_left > 0)
-		philo->meal_left--;
-	// if (philo->data->time_to_eat > philo->data->time_to_die)
-	// {
-	//	 usleep(1000 * philo->data->time_to_die);
-	//	 log_philo(philo, "died");
-	// }
-	// else
-	usleep(1000 * philo->data->time_to_eat);
+	philo->meal_left -= (philo->meal_left > 0);
+	if (philo->data->time_to_eat > philo->data->time_to_die)
+	{
+		usleep(1000 * philo->data->time_to_die);
+		log_philo(philo, "died");
+	}
+	else
+		usleep(1000 * philo->data->time_to_eat);
 	pthread_mutex_unlock(&(philo->data->fork[first_fork]));
+	usleep(10);
 	pthread_mutex_unlock(&(philo->data->fork[second_fork]));
 }
 
@@ -73,7 +72,7 @@ void	*philo_routine(void *param)
 	while (simulation_stopped(philosopher->data) == -1)
 		usleep(10);
 	if (philosopher->id % 2)
-		usleep(5000);
+		usleep(15000);
 	while (1)
 	{
 		philo_eat(philosopher);
@@ -82,8 +81,9 @@ void	*philo_routine(void *param)
 		philo_sleep(philosopher);
 		if (simulation_stopped(philosopher->data))
 			break ;
+		usleep(100);
 		log_philo(philosopher, "is thinking");
-		usleep(10);
+		usleep(100);
 	}
 	return (NULL);
 }

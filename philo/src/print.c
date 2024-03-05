@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 14:24:57 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:41:36 by madlab           ###   ########.fr       */
+/*   Updated: 2024/03/05 17:08:43 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	log_philo(t_philo *philo, char *msg)
 	pthread_mutex_lock(&philo->data->stdout_lock);
 	if (simulation_stopped(philo->data))
 		return ((void) pthread_mutex_unlock(&philo->data->stdout_lock));
-	printf("%d ms %d %s\n", timestamp, philo->id + 1, msg);
+	printf("%d %d %s\n", timestamp, philo->id + 1, msg);
 	if (*msg == 'd')
 	{
 		pthread_mutex_lock(&philo->data->dead_lock);

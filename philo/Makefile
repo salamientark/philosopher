@@ -7,7 +7,8 @@ PROJECT = philo
 PROJECT_DIR = ./
 
 SRC_DIR = src
-SRC_FILE = error.c \
+SRC_FILE = utils.c \
+			error.c \
 			print.c \
 			init_simulation.c \
 			philo.c \
