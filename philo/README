@@ -1,2 +1,2 @@
-- Improve execution speed
-- Fix limited meal simulation
+- Simulation not constant (fail after 10s on infinte case)
+- BETTER ERROR HANDLING
