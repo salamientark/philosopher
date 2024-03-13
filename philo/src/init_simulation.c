@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/12 13:48:34 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/12 14:03:25 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ t_data	*init_simulation(int ac, char **av)
 	if (data->philo_nbr == 1)
 	{
 		printf("0 ms 1 has taken a fork\n");
-		usleep(1000 * data->time_to_die);
+		ft_msleep(data->time_to_die);
 		printf("%ld ms 1 died\n", data->time_to_die);
 	}
 	if (data->philo_nbr == 1 || data->meal_to_take == 0)

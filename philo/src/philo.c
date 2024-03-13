@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/05 20:16:24 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/13 17:39:26 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,11 @@ static void	philo_sleep(t_philo *philo)
 		> philo->data->time_to_die)
 	{
 		if (philo->data->time_to_die > ms_since_last_meal)
-			usleep((philo->data->time_to_die - ms_since_last_meal) * 1000);
+			ft_msleep(philo->data->time_to_die - ms_since_last_meal + 1);
 		log_philo(philo, "died");
 		return ;
 	}
-	usleep(1000 * (philo->data->time_to_sleep));
+	ft_msleep(philo->data->time_to_sleep);
 }
 
 /*
@@ -54,13 +54,13 @@ static void	philo_eat(t_philo *philo)
 	philo->meal_left -= (philo->meal_left > 0);
 	if (philo->data->time_to_eat > philo->data->time_to_die)
 	{
-		usleep(1000 * philo->data->time_to_die);
+		ft_msleep(philo->data->time_to_die);
 		log_philo(philo, "died");
 	}
 	else
-		usleep(1000 * philo->data->time_to_eat);
+		ft_msleep(philo->data->time_to_eat);
 	pthread_mutex_unlock(&(philo->data->fork[first_fork]));
-	usleep(10);
+	usleep(700);
 	pthread_mutex_unlock(&(philo->data->fork[second_fork]));
 }
 
@@ -73,17 +73,17 @@ void	*philo_routine(void *param)
 		usleep(10);
 	if (philosopher->id % 2)
 		usleep(15000);
-	while (1)
+	while (!simulation_stopped(philosopher->data))
 	{
 		philo_eat(philosopher);
-		if (simulation_stopped(philosopher->data))
-			break ;
+		// if (simulation_stopped(philosopher->data))
+		// 	break ;
 		philo_sleep(philosopher);
-		if (simulation_stopped(philosopher->data))
-			break ;
-		usleep(100);
+		// if (simulation_stopped(philosopher->data))
+		// 	break ;
+		// usleep(100);
 		log_philo(philosopher, "is thinking");
-		usleep(100);
+		// usleep(100);
 	}
 	return (NULL);
 }

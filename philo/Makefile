@@ -8,6 +8,7 @@ PROJECT_DIR = ./
 
 SRC_DIR = src
 SRC_FILE = utils.c \
+			ft_time.c \
 			error.c \
 			print.c \
 			init_simulation.c \

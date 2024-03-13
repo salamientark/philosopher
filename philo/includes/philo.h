@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:35:55 by madlab           ###   ########.fr       */
+/*   Updated: 2024/03/12 14:02:29 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,8 @@ void	log_philo(t_philo *philo, char *msg);
 
 // Main.c
 int		simulation_stopped(t_data *data);
+
+// FT_TIME.c
+void    ft_msleep(long int wait_time);
 
 #endif
