@@ -1,28 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   exit_error.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 01:05:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 01:12:25 by dbaladro         ###   ########.fr       */
+/*   Created: 2024/02/20 09:58:44 by dbaladro          #+#    #+#             */
+/*   Updated: 2024/03/14 00:05:11 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
 /*
-    Return data->simulation_end value
-    Mutex protected
+	OBVIOUS
 */
-int	simulation_stopped(t_data *data)
+void	exit_error(char *prog, char *msg)
 {
-	int	simulation_stoped;
-
-	simulation_stoped = 0;
-	pthread_mutex_lock(&data->dead_lock);
-	simulation_stoped = data->simulation_end;
-	pthread_mutex_unlock(&data->dead_lock);
-	return (simulation_stoped);
+	printf("%s: %s\n", prog, msg);
+	exit(EXIT_FAILURE);
 }

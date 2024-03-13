@@ -1,39 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   exit_simulation.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/20 09:58:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/04 00:36:52 by madlab           ###   ########.fr       */
+/*   Created: 2024/03/13 23:40:14 by dbaladro          #+#    #+#             */
+/*   Updated: 2024/03/14 00:06:30 by madlab           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-void	print_error(char *msg, pthread_mutex_t *std_err_lock)
-{
-	int	len;
-
-	len = 0;
-	while (msg[len])
-		len++;
-	pthread_mutex_lock(std_err_lock);
-	write(2, msg, len);
-	pthread_mutex_unlock(std_err_lock);
-}
-
-void	exit_error(char *prog, char *msg)
-{
-	printf("%s: %s\n", prog, msg);
-	exit(EXIT_FAILURE);
-}
-
+/*
+	Wait for thrad to finish then properly exit simulation
+*/
 void	exit_simulation(t_data *data_p)
 {
 	int	index;
 
+	index = 0;
+	while (index < data_p->philo_nbr)
+	{
+		pthread_join(data_p->philosopher[index].tid, NULL);
+		index++;
+	}
 	index = 0;
 	while (index < data_p->philo_nbr)
 	{

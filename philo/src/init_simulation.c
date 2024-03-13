@@ -6,40 +6,18 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/12 14:03:25 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:14:45 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-// Return -2 in case of invalid arg
-static int	ft_atoi(char *s)
+static void	free_all(t_data *data)
 {
-	long	nbr;
-	int		sign;
-	int		index;
-
-	sign = 1;
-	nbr = 0;
-	index = 0;
-	while (s[index] && ((9 <= s[index] && s[index] <= 13) || s[index] == ' '))
-		index++;
-	while (s[index] && (s[index] == '-' || s[index] == '+'))
-	{
-		if (s[index] == '-')
-			sign *= -1;
-		index++;
-	}
-	while (s[index] && ('0' <= s[index] && s[index] <= '9'))
-	{
-		nbr = 10 * nbr + (s[index] - '0');
-		if ((sign && nbr > INT_MAX) || (-nbr) < INT_MIN)
-			return (-2);
-		index++;
-	}
-	if (s[index] || sign == -1)
-		return (-2);
-	return (sign * nbr);
+	free(data->fork);
+	free(data->philosopher);
+	free(data);
+	data = NULL;
 }
 
 /*
@@ -62,7 +40,7 @@ static void	init_data(t_data *data_p, int ac, char **av)
 		data_p->meal_per_philo = ft_atoi(av[5]);
 	if (ac == 6)
 		data_p->meal_to_take = (data_p->meal_per_philo * data_p->philo_nbr);
-	if (data_p->philo_nbr <= 0 //|| data_p->philo_nbr > 200
+	if (data_p->philo_nbr <= 0
 		|| data_p->time_to_die <= 0 || data_p->time_to_eat <= 0
 		|| data_p->time_to_sleep <= 0 || data_p->meal_per_philo == -2)
 		return (free(data_p), exit_error("philo", INVALID_ARG));
@@ -85,27 +63,27 @@ static void	init_mutex(t_data *data)
 	int	index;
 
 	if (pthread_mutex_init(&data->stdout_lock, NULL) != 0)
-		return (free(data), exit_error("init_mutex: ", "mutex_init error"));
+		return (free_all(data), exit_error("init_mutex", "mutex_init error"));
 	if (pthread_mutex_init(&data->dead_lock, NULL) != 0)
-		return (free(data), exit_error("init_mutex: ", "mutex_init error"));
+		return (pthread_mutex_destroy(&data->stdout_lock), free_all(data),
+			exit_error("init_mutex", "mutex_init error"));
 	if (pthread_mutex_init(&data->meal_lock, NULL) != 0)
-		return (free(data), exit_error("init_mutex: ", "mutex_init error"));
-	index = 0;
-	while (index < data->philo_nbr)
+		return (pthread_mutex_destroy(&data->stdout_lock),
+			pthread_mutex_destroy(&data->dead_lock), free_all(data),
+			exit_error("init_mutex", "mutex_init error"));
+	index = -1;
+	while (++index < data->philo_nbr)
 	{
 		if (pthread_mutex_init(&(data->fork[index]), NULL) != 0)
 		{
 			while (index-- > 0)
 				pthread_mutex_destroy(&(data->fork[index]));
-			free(data->fork);
-			free(data->philosopher);
 			pthread_mutex_destroy(&data->stdout_lock);
 			pthread_mutex_destroy(&data->dead_lock);
 			pthread_mutex_destroy(&data->meal_lock);
-			free(data);
+			free_all(data);
 			exit_error("mutex_init", "pthread_mutex_init error");
 		}
-		index++;
 	}
 }
 
@@ -126,18 +104,16 @@ static void	init_philo(t_data *data)
 		if (pthread_create(&data->philosopher[index].tid, NULL,
 				philo_routine, &data->philosopher[index]) != 0)
 		{
-			printf("init_philo: pthread_create error\n");
+			pthread_mutex_lock(&data->dead_lock);
+			data->simulation_end = 1;
+			pthread_mutex_unlock(&data->dead_lock);
+			while (index-- > 0)
+				pthread_join(data->philosopher[index].id, NULL);
+			write(2, "init_philo: pthread_create error\n", 33);
 			exit_simulation(data);
 		}
 		index++;
 	}
-	index = -1;
-	gettimeofday(&data->simulation_start_time, NULL);
-	while (++index < data->philo_nbr)
-		data->philosopher[index].last_meal = data->simulation_start_time;
-	pthread_mutex_lock(&data->dead_lock);
-	data->simulation_end = 0;
-	pthread_mutex_unlock(&data->dead_lock);
 }
 
 /*
@@ -159,9 +135,7 @@ t_data	*init_simulation(int ac, char **av)
 	}
 	if (data->philo_nbr == 1 || data->meal_to_take == 0)
 	{
-		free(data->fork);
-		free(data->philosopher);
-		free(data);
+		free_all(data);
 		exit(EXIT_SUCCESS);
 	}
 	init_mutex(data);

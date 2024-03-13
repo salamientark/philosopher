@@ -7,10 +7,10 @@ PROJECT = philo
 PROJECT_DIR = ./
 
 SRC_DIR = src
-SRC_FILE = utils.c \
-			ft_time.c \
-			error.c \
-			print.c \
+SRC_FILE = exit_error.c \
+			exit_simulation.c \
+			ft_atoi.c \
+			ft_msleep.c \
 			init_simulation.c \
 			philo.c \
 			main.c

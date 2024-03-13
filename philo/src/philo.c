@@ -6,11 +6,60 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/13 17:39:26 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:14:18 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
+
+/*
+    Return data->simulation_end value
+    Mutex protected
+*/
+int	simulation_stopped(t_data *data)
+{
+	int	simulation_stoped;
+
+	simulation_stoped = 0;
+	pthread_mutex_lock(&data->dead_lock);
+	simulation_stoped = data->simulation_end;
+	pthread_mutex_unlock(&data->dead_lock);
+	return (simulation_stoped);
+}
+
+/*
+	Log philosopher action in form:
+		[timestamp] [philo.id] ms [msg]
+	If the philo died (msg == died)
+	send simulation_end 'signal'
+*/
+void	log_philo(t_philo *philo, char *msg)
+{
+	struct timeval	right_now;
+	int				timestamp;
+
+	if (simulation_stopped(philo->data))
+		return ;
+	pthread_mutex_lock(&philo->data->stdout_lock);
+	if (simulation_stopped(philo->data))
+		return ((void) pthread_mutex_unlock(&philo->data->stdout_lock));
+	if (gettimeofday(&right_now, NULL) == 0)
+		timestamp = 1000 * (right_now.tv_sec
+				- philo->data->simulation_start_time.tv_sec)
+			+ (right_now.tv_usec
+				- philo->data->simulation_start_time.tv_usec) / 1000;
+	else
+		timestamp = -1;
+	printf("%d %d %s\n", timestamp, philo->id + 1, msg);
+	if (*msg == 'd')
+	{
+		pthread_mutex_lock(&philo->data->dead_lock);
+		philo->alive = 0;
+		philo->data->simulation_end = 1;
+		pthread_mutex_unlock(&philo->data->dead_lock);
+	}
+	pthread_mutex_unlock(&philo->data->stdout_lock);
+}
 
 static void	philo_sleep(t_philo *philo)
 {
@@ -54,7 +103,7 @@ static void	philo_eat(t_philo *philo)
 	philo->meal_left -= (philo->meal_left > 0);
 	if (philo->data->time_to_eat > philo->data->time_to_die)
 	{
-		ft_msleep(philo->data->time_to_die);
+		ft_msleep(philo->data->time_to_die + 1);
 		log_philo(philo, "died");
 	}
 	else
@@ -76,14 +125,8 @@ void	*philo_routine(void *param)
 	while (!simulation_stopped(philosopher->data))
 	{
 		philo_eat(philosopher);
-		// if (simulation_stopped(philosopher->data))
-		// 	break ;
 		philo_sleep(philosopher);
-		// if (simulation_stopped(philosopher->data))
-		// 	break ;
-		// usleep(100);
 		log_philo(philosopher, "is thinking");
-		// usleep(100);
 	}
 	return (NULL);
 }

@@ -6,11 +6,37 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/13 17:32:48 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/14 00:05:39 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
+
+/*
+	Set starting time and allow philo thread to start
+*/
+void	start_simulation(t_data *data)
+{
+	int	index;
+
+	if (gettimeofday(&data->simulation_start_time, NULL) != 0)
+	{
+		write(2, "start_simulation: gettimeofday error\n", 38);
+		pthread_mutex_lock(&data->dead_lock);
+		data->simulation_end = 1;
+		pthread_mutex_unlock(&data->dead_lock);
+		exit_simulation(data);
+	}
+	index = 0;
+	while (index < data->philo_nbr)
+	{
+		data->philosopher[index].last_meal = data->simulation_start_time;
+		index++;
+	}
+	pthread_mutex_lock(&data->dead_lock);
+	data->simulation_end = 0;
+	pthread_mutex_unlock(&data->dead_lock);
+}
 
 /*
 	Return:
@@ -54,18 +80,12 @@ void	monitor(t_data *data_p)
 int	main(int ac, char **av)
 {
 	t_data	*data;
-	int		index;
 
 	if (ac != 5 && ac != 6)
 		exit_error("philo", BAD_ARG_NBR);
 	data = init_simulation(ac, av);
+	start_simulation(data);
 	monitor(data);
-	index = 0;
-	while (index < data->philo_nbr)
-	{
-		pthread_join(data->philosopher[index].tid, NULL);
-		index++;
-	}
 	exit_simulation(data);
 	return (0);
 }
