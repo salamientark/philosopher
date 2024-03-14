@@ -2,3 +2,5 @@
 *.out
 *.a
 philo/philo
+philo/README
+test.sh
