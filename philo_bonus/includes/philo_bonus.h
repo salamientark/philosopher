@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 17:09:29 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/20 18:11:47 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <fcntl.h>
 # include <sys/time.h>
 # include <sys/stat.h>
+# include <sys/wait.h>
 # include <pthread.h>
 # include <semaphore.h>
 
@@ -60,12 +61,13 @@ typedef struct s_data
 	pid_t			*philo_pid;
 }				t_data;
 
-// init_simulation.c;
-void	exit_simulation(t_data *data, char *func, char *err_msg);
-t_data	*init_simulation(int ac, char **av);
-
-// ft_msleep.c
+// utils.c
+void	print_error(char *func, char *msg);
 void	ft_msleep(long int wait_time);
+void	exit_simulation(t_data *data, char *func, char *err_msg);
+
+// init_simulation.c;
+t_data	*init_simulation(int ac, char **av);
 
 // philo.c
 void    philo_routine(t_data *data);

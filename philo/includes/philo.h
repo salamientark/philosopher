@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/14 00:08:24 by madlab           ###   ########.fr       */
+/*   Updated: 2024/03/20 15:54:41 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,11 @@
 number_of_meal_each_philo_must_have : Optionnal argument"
 # define INVALID_ARG "Argument need to be strictly positive integer\n\
 Except [ philo_nbr ], which need to be superior to 1"
+# define TAKE_FORK "has taken a fork"
+# define DIED "died"
+# define EAT "is eating"
+# define SLEEP "is sleeping"
+# define THINK "is thinking"
 
 // Philosoph structure
 typedef struct s_philo

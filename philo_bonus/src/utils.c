@@ -1,19 +1,67 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_msleep.c                                        :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/18 14:51:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 17:03:35 by dbaladro         ###   ########.fr       */
+/*   Created: 2024/03/20 18:01:00 by dbaladro          #+#    #+#             */
+/*   Updated: 2024/03/20 18:05:06 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
 
+void	print_error(char *func, char *msg)
+{
+	int		i;
+	char	buffer[500];
+
+	i = 0;
+	while (*func)
+	{
+		buffer[i] = *func;
+		i++;
+		func++;
+	}
+	buffer[i++] = ' ';
+	buffer[i++] = ':';
+	buffer[i++] = ' ';
+	while (*msg)
+	{
+		buffer[i] = *msg;
+		msg++;
+		i++;
+	}
+	buffer[i] = '\n';
+	write(2, buffer, i);
+}
+
 /*
-    Improved usleep
+	DESTROY SEMAPHORE, free(data) EXIT_ERROR
+*/
+void	exit_simulation(t_data *data, char *func, char *err_msg)
+{
+	sem_close(data->stdout_sem);
+	sem_close(data->fork);
+	sem_close(data->philo_alive);
+	sem_unlink(SEM_STDOUT);
+	sem_unlink(SEM_FORK);
+	sem_unlink(SEM_PHILO_ALIVE);
+	free(data->philo_pid);
+	free(data);
+	data = NULL;
+	if (!func || !err_msg)
+		exit(EXIT_SUCCESS);
+	print_error(func, err_msg);
+	exit(EXIT_FAILURE);
+	// exit_error(func, err_msg);
+}
+
+/*
+    Improved sleep
+    ARG:
+    wait_time : in millisecond
 */
 void	ft_msleep(long int wait_time)
 {

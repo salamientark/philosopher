@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/14 00:14:18 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/20 15:55:29 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	simulation_stopped(t_data *data)
 /*
 	Log philosopher action in form:
 		[timestamp] [philo.id] ms [msg]
-	If the philo died (msg == died)
+	If the philo DIED (msg == DIED)
 	send simulation_end 'signal'
 */
 void	log_philo(t_philo *philo, char *msg)
@@ -69,13 +69,13 @@ static void	philo_sleep(t_philo *philo)
 	gettimeofday(&now, NULL);
 	ms_since_last_meal = 1000 * (now.tv_sec - philo->last_meal.tv_sec)
 		+ (now.tv_usec - philo->last_meal.tv_usec) / 1000;
-	log_philo(philo, "is sleeping");
+	log_philo(philo, SLEEP);
 	if (ms_since_last_meal + philo->data->time_to_sleep
 		> philo->data->time_to_die)
 	{
 		if (philo->data->time_to_die > ms_since_last_meal)
 			ft_msleep(philo->data->time_to_die - ms_since_last_meal + 1);
-		log_philo(philo, "died");
+		log_philo(philo, DIED);
 		return ;
 	}
 	ft_msleep(philo->data->time_to_sleep);
@@ -92,10 +92,10 @@ static void	philo_eat(t_philo *philo)
 	first_fork = (philo->id + (philo->id % 2 == 1)) % philo->data->philo_nbr;
 	second_fork = (philo->id + (philo->id % 2 == 0)) % philo->data->philo_nbr;
 	pthread_mutex_lock(&(philo->data->fork[first_fork]));
-	log_philo(philo, "has taken a fork");
+	log_philo(philo, TAKE_FORK);
 	pthread_mutex_lock(&(philo->data->fork[second_fork]));
-	log_philo(philo, "has taken a fork");
-	log_philo(philo, "is eating");
+	log_philo(philo, TAKE_FORK);
+	log_philo(philo, EAT);
 	pthread_mutex_lock(&philo->data->meal_lock);
 	gettimeofday(&philo->last_meal, NULL);
 	philo->data->meal_to_take -= (philo->meal_left > 0);
@@ -104,7 +104,7 @@ static void	philo_eat(t_philo *philo)
 	if (philo->data->time_to_eat > philo->data->time_to_die)
 	{
 		ft_msleep(philo->data->time_to_die + 1);
-		log_philo(philo, "died");
+		log_philo(philo, DIED);
 	}
 	else
 		ft_msleep(philo->data->time_to_eat);
@@ -118,6 +118,15 @@ void	*philo_routine(void *param)
 	t_philo	*philosopher;
 
 	philosopher = (t_philo *)param;
+	if (philosopher->data->philo_nbr == 1)
+	{
+		pthread_mutex_lock(&philosopher->data->fork[0]);
+		log_philo(philosopher, TAKE_FORK);
+		ft_msleep(philosopher->data->time_to_die);
+		log_philo(philosopher, DIED);
+		pthread_mutex_unlock(&philosopher->data->fork[0]);
+		return (NULL);
+	}
 	while (simulation_stopped(philosopher->data) == -1)
 		usleep(10);
 	if (philosopher->id % 2)
@@ -126,7 +135,7 @@ void	*philo_routine(void *param)
 	{
 		philo_eat(philosopher);
 		philo_sleep(philosopher);
-		log_philo(philosopher, "is thinking");
+		log_philo(philosopher, THINK);
 	}
 	return (NULL);
 }

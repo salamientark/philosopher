@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/14 00:05:39 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/20 17:09:38 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	start_simulation(t_data *data)
 /*
 	Return:
 	1 : Everybody survived
-	0 : Someone died
+	0 : Someone DIED
 */
 void	monitor(t_data *data_p)
 {
@@ -66,7 +66,7 @@ void	monitor(t_data *data_p)
 		gettimeofday(&now, NULL);
 		if (1000 * (now.tv_sec - last_meal_cp.tv_sec) + (now.tv_usec
 				- last_meal_cp.tv_usec) / 1000 > data_p->time_to_die)
-			log_philo(&data_p->philosopher[index], "died");
+			log_philo(&data_p->philosopher[index], DIED);
 		index++;
 		index %= data_p->philo_nbr;
 	}
@@ -77,6 +77,7 @@ void	monitor(t_data *data_p)
 	Start threads.
 	other thread philo
 */
+// MUST REPLACE WRITE
 int	main(int ac, char **av)
 {
 	t_data	*data;
