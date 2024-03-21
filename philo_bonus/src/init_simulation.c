@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 23:40:56 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/21 00:34:34 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ static int	ft_atoi(char *s)
 */
 static void	init_data(t_data *data_p, int ac, char **av)
 {
+	data_p->philo_live = 1;
 	data_p->philo_nbr = ft_atoi(av[1]);
 	data_p->time_to_die = ft_atoi(av[2]);
 	data_p->time_to_eat = ft_atoi(av[3]);
@@ -91,26 +92,27 @@ static void	init_data(t_data *data_p, int ac, char **av)
 */
 static void	init_semaphore(t_data *data)
 {
-	// clean semaphores ?
-	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_PHILO_ALIVE);
-	sem_unlink(SEM_STDOUT);
-	// Create stdout_semaphore
+	int	index;
+
+	index = 0;
 	data->stdout_sem = sem_open(SEM_STDOUT, O_CREAT | O_EXCL, 0660, 1);
 	if (data->stdout_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	// Create fork_sem
 	data->fork = sem_open(SEM_FORK, O_CREAT | O_EXCL, 0660, data->philo_nbr);
 	if (data->fork == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	// CREATE Philo_alive sem
-	data->philo_alive = sem_open(SEM_PHILO_ALIVE, O_CREAT | O_EXCL, 0660, data->philo_nbr);
-	if (data->philo_alive == SEM_FAILED)
+	data->simulation_stop = sem_open(SEM_SIMULAION_STOP, O_CREAT | O_EXCL, 0660, data->philo_nbr);
+	if (data->simulation_stop == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	int index = 0;
+	data->dead_sem = sem_open(SEM_DEAD, O_CREAT | O_EXCL, 0660, 1);
+	if (data->dead_sem == SEM_FAILED)
+		exit_simulation(data, "init_semaphore", "sem_open failed");
+	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660, 1);
+	if (data->meal_sem == SEM_FAILED)
+		exit_simulation(data, "init_semaphore", "sem_open failed");
 	while (index < data->philo_nbr)
 	{
-		sem_wait(data->philo_alive);
+		sem_wait(data->simulation_stop);
 		index++;
 	}
 }
@@ -138,7 +140,6 @@ static void	init_philo(t_data *data)
 			philo_routine(data);
 			exit(EXIT_SUCCESS);
 		}
-		// kill(data->philo_pid[index], SIGSTOP);
 		index++;
 	}
 }
@@ -150,13 +151,17 @@ t_data	*init_simulation(int ac, char **av)
 {
 	t_data	*data;
 
+	sem_unlink(SEM_FORK);
+	sem_unlink(SEM_MEAL);
+	sem_unlink(SEM_STDOUT);
+	sem_unlink(SEM_DEAD);
+	sem_unlink(SEM_SIMULAION_STOP);
 	data = (t_data *)malloc(sizeof(t_data));
 	if (!data)
 	{
 		print_error("init_simulation", "malloc error");
 		exit(EXIT_FAILURE);
 	}
-		// exit_error("init_simulation", "malloc error");
 	init_data(data, ac, av);
 	if (data->meal_to_take == 0)
 		exit_simulation(data, NULL, NULL);

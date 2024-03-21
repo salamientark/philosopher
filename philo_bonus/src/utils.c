@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 18:01:00 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 18:05:06 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/21 00:44:37 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,14 @@ void	exit_simulation(t_data *data, char *func, char *err_msg)
 {
 	sem_close(data->stdout_sem);
 	sem_close(data->fork);
-	sem_close(data->philo_alive);
+	sem_close(data->dead_sem);
+	sem_close(data->meal_sem);
+	sem_close(data->simulation_stop);
 	sem_unlink(SEM_STDOUT);
 	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_PHILO_ALIVE);
+	sem_unlink(SEM_DEAD);
+	sem_unlink(SEM_MEAL);
+	sem_unlink(SEM_SIMULAION_STOP);
 	free(data->philo_pid);
 	free(data);
 	data = NULL;

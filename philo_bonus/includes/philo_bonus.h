@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 18:11:47 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/21 00:34:09 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,10 @@ Except [ philo_nbr ], which need to be superior to 1"
 # define SLEEP "is sleeping"
 # define THINK "is thinking"
 # define SEM_STDOUT "/philo_stdout\0"
-# define SEM_PHILO_ALIVE "/philot_alive\0"
+# define SEM_DEAD "/philo_dead\0"
 # define SEM_FORK "/philo_fork\0"
+# define SEM_MEAL "/philo_meal\0"
+# define SEM_SIMULAION_STOP "/philo_simulation_stop\0"
 
 // Shared data structure
 typedef struct s_data
@@ -55,9 +57,12 @@ typedef struct s_data
 	struct timeval	simulation_start_time;
 
 	int				philo_id;
+	int				philo_live;
 	sem_t           *stdout_sem;
     sem_t           *fork;
-	sem_t			*philo_alive;
+	sem_t			*dead_sem;
+	sem_t			*meal_sem;
+	sem_t			*simulation_stop;
 	pid_t			*philo_pid;
 }				t_data;
 
