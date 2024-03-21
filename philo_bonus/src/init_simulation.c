@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 00:34:34 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/21 13:39:10 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,6 @@ static void	init_data(t_data *data_p, int ac, char **av)
 */
 static void	init_semaphore(t_data *data)
 {
-	int	index;
-
-	index = 0;
 	data->stdout_sem = sem_open(SEM_STDOUT, O_CREAT | O_EXCL, 0660, 1);
 	if (data->stdout_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
@@ -110,11 +107,6 @@ static void	init_semaphore(t_data *data)
 	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660, 1);
 	if (data->meal_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	while (index < data->philo_nbr)
-	{
-		sem_wait(data->simulation_stop);
-		index++;
-	}
 }
 
 /*
@@ -125,6 +117,9 @@ static void	init_philo(t_data *data)
 	int	index;
 
 	index = 0;
+	if (gettimeofday(&data->simulation_start_time, NULL) != 0)
+		exit_simulation(data, "init_philo", "gettimofday error");
+	data->simulation_start_time.tv_sec += 1;
 	while (index < data->philo_nbr)
 	{
 		data->philo_pid[index] = fork();
