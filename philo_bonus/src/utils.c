@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 18:01:00 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 11:52:17 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/22 07:35:53 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,14 @@ void	exit_simulation(t_data *data, char *func, char *err_msg)
 	sem_close(data->stdout_sem);
 	sem_close(data->fork);
 	sem_close(data->dead_sem);
+	sem_close(data->eat_sem);
 	sem_close(data->meal_sem);
 	sem_close(data->simulation_stop);
 	sem_unlink(SEM_STDOUT);
 	sem_unlink(SEM_FORK);
 	sem_unlink(SEM_DEAD);
 	sem_unlink(SEM_MEAL);
+	sem_unlink(SEM_EAT);
 	sem_unlink(SEM_SIMULAION_STOP);
 	free(data->philo_pid);
 	free(data);
@@ -59,7 +61,6 @@ void	exit_simulation(t_data *data, char *func, char *err_msg)
 		exit(EXIT_SUCCESS);
 	print_error(func, err_msg);
 	exit(EXIT_FAILURE);
-	// exit_error(func, err_msg);
 }
 
 /*
@@ -81,9 +82,9 @@ void	ft_msleep(long int wait_time)
 	}
 	m_start = 1000 * start.tv_sec + start.tv_usec / 1000;
 	m_now = m_start;
-	while (m_now - m_start < wait_time)
+	while (m_now - m_start <= wait_time)
 	{
-		usleep(500);
+		usleep(400);
 		if (gettimeofday(&now, NULL) != 0)
 		{
 			write(2, "ft_msleep() : gettimeofday error\n", 34);

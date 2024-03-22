@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 13:39:10 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/21 18:47:50 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,10 @@ static void	init_semaphore(t_data *data)
 	data->dead_sem = sem_open(SEM_DEAD, O_CREAT | O_EXCL, 0660, 1);
 	if (data->dead_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660, 1);
+	data->eat_sem = sem_open(SEM_EAT, O_CREAT | O_EXCL, 0660, 1);
+	if (data->eat_sem == SEM_FAILED)
+		exit_simulation(data, "init_semaphore", "sem_open failed");
+	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660, data->philo_nbr);
 	if (data->meal_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 }
@@ -148,6 +151,7 @@ t_data	*init_simulation(int ac, char **av)
 
 	sem_unlink(SEM_FORK);
 	sem_unlink(SEM_MEAL);
+	sem_unlink(SEM_EAT);
 	sem_unlink(SEM_STDOUT);
 	sem_unlink(SEM_DEAD);
 	sem_unlink(SEM_SIMULAION_STOP);

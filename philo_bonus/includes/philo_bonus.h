@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 00:34:09 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/21 18:46:23 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ Except [ philo_nbr ], which need to be superior to 1"
 # define SEM_DEAD "/philo_dead\0"
 # define SEM_FORK "/philo_fork\0"
 # define SEM_MEAL "/philo_meal\0"
+# define SEM_EAT "/philo_eat\0"
 # define SEM_SIMULAION_STOP "/philo_simulation_stop\0"
 
 // Shared data structure
@@ -62,6 +63,7 @@ typedef struct s_data
     sem_t           *fork;
 	sem_t			*dead_sem;
 	sem_t			*meal_sem;
+	sem_t			*eat_sem;
 	sem_t			*simulation_stop;
 	pid_t			*philo_pid;
 }				t_data;

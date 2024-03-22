@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 13:47:33 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/22 07:56:23 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,13 @@ static void    *check_death(void *param)
 {
     long int        ms_since_last_meal;
     struct timeval  now;
+    struct timeval  last_meal_cp;
     t_data          *data;
 
     data = (t_data *)param;
+    sem_wait(data->eat_sem);
+    last_meal_cp = data->last_meal;
+    sem_post(data->eat_sem);
     while (1)
     {
         if (gettimeofday(&now, NULL) != 0)
@@ -78,27 +82,42 @@ static void    *check_death(void *param)
             print_error("check_death", "gettimeofday error");
             exit(EXIT_FAILURE);
         }
-
-        // >>> Critical code section
-        sem_wait(data->meal_sem);
-        ms_since_last_meal = 1000 * (now.tv_sec - data->last_meal.tv_sec)
-            + (now.tv_usec - data->last_meal.tv_usec) / 1000;
-        sem_post(data->meal_sem);
-        // <<< Critical code section
+        ms_since_last_meal = 1000 * (now.tv_sec - last_meal_cp.tv_sec)
+            + (now.tv_usec - last_meal_cp.tv_usec) / 1000;
         if (ms_since_last_meal > data->time_to_die)
         {
             log_philo(data, DIED);
             exit(EXIT_SUCCESS);
         }
-        sem_wait(data->meal_sem);
-        if (data->meal_to_take == 0)
+        ft_msleep(data->time_to_die - ms_since_last_meal - 2);
+        while (ms_since_last_meal <= data->time_to_die)
         {
-            sem_post(data->meal_sem);
-            return ((void *)NULL);
+            if (gettimeofday(&now, NULL) != 0)
+            {
+                sem_post(data->simulation_stop);
+                print_error("check_death", "gettimeofday error");
+                exit(EXIT_FAILURE);
+            }
+            ms_since_last_meal = 1000 * (now.tv_sec - last_meal_cp.tv_sec)
+                + (now.tv_usec - last_meal_cp.tv_usec) / 1000;
+            usleep(400);
         }
-        sem_post(data->meal_sem);
+        sem_wait(data->eat_sem);
+        if (last_meal_cp.tv_usec == data->last_meal.tv_usec && last_meal_cp.tv_sec == data->last_meal.tv_sec)
+        {
+            log_philo(data, DIED);
+            exit(EXIT_SUCCESS);
+        }
+        last_meal_cp = data->last_meal;
+        sem_post(data->eat_sem);
+        // sem_wait(data->eat_sem);
+        // if (data->meal_to_take == 0)
+        // {
+        //     sem_post(data->eat_sem);
+        //     return ((void *)NULL);
+        // }
+        // sem_post(data->eat_sem);
         // usleep((data->time_to_die - ms_since_last_meal) * 1000 - 100);
-        usleep(500);
     }
     
 }
@@ -112,7 +131,7 @@ static void    philo_live(t_data *data)
         sem_wait(data->fork);
         log_philo(data, TAKE_FORK);
         log_philo(data, EAT);
-        sem_wait(data->meal_sem);
+        sem_wait(data->eat_sem);
         if (gettimeofday(&data->last_meal, NULL) != 0)
         {
             sem_post(data->simulation_stop);
@@ -123,7 +142,7 @@ static void    philo_live(t_data *data)
             data->meal_to_take--;
         if (data->meal_to_take == 0)
             break ;
-        sem_post(data->meal_sem);
+        sem_post(data->eat_sem);
         ft_msleep(data->time_to_eat);
         sem_post(data->fork);
         sem_post(data->fork);
@@ -132,7 +151,7 @@ static void    philo_live(t_data *data)
         log_philo(data, THINK);
         usleep(100);
     }
-    sem_post(data->meal_sem);
+    sem_post(data->eat_sem);
     sem_post(data->fork);
     sem_post(data->fork);
 }
@@ -161,7 +180,7 @@ static void    wait_simulation_start(t_data *data)
             exit(EXIT_FAILURE);
         }
         now_ms = 1000 * now.tv_sec + now.tv_usec / 1000;
-        usleep(500);
+        usleep(200);
     }
 }
 
@@ -171,8 +190,8 @@ void    philo_routine(t_data *data)
 
     // usleep(10000);
     sem_wait(data->simulation_stop);
+    sem_wait(data->meal_sem);
     data->last_meal = data->simulation_start_time;
-    wait_simulation_start(data);
     if (pthread_create(&death_checker, NULL, check_death, (void *)data) != 0)
     {
         sem_post(data->simulation_stop);
@@ -181,11 +200,12 @@ void    philo_routine(t_data *data)
         // exit_error("philo_routine", "pthread_create error");
     }
     pthread_detach(death_checker);
-    if (data->philo_id % 2)
-        ft_msleep(data->time_to_eat / 2);
+    wait_simulation_start(data);
+    // if (data->philo_id % 2)
+    //     ft_msleep(data->time_to_eat / 2);
+    usleep(200 * (data->philo_id + 1));
     philo_live(data);
-    ft_msleep(data->time_to_eat * 2);
-    sem_post(data->simulation_stop);
-    sem_close(data->simulation_stop);
+    sem_post(data->meal_sem);
+    // ft_msleep(data->time_to_eat * 2);
     exit(EXIT_SUCCESS);
 }
