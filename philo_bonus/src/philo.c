@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/22 07:56:23 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/22 12:01:39 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,28 @@ static void    log_philo(t_data *data, char *msg)
     sem_post(data->stdout_sem);
 }
 
+void    delay(t_data *data)
+{
+    struct timeval  now;
+    long int        ms_since_last_meal;
+
+    gettimeofday(&now, NULL);
+    sem_wait(data->eat_sem);
+    ms_since_last_meal = 1000 * (now.tv_sec - data->last_meal.tv_sec)
+        + (now.tv_usec - data->last_meal.tv_usec) / 1000;
+    sem_post(data->eat_sem);
+    if (data->philo_nbr % 2 == 1)
+    {
+        if (ms_since_last_meal < 3 * data->time_to_eat)
+            ft_msleep(3 * data->time_to_eat - ms_since_last_meal);
+    }
+    else
+    {
+        if (ms_since_last_meal < 2 * data->time_to_eat)
+            ft_msleep(2 * data->time_to_eat - ms_since_last_meal);
+    }
+}
+
 static void    *check_death(void *param)
 {
     long int        ms_since_last_meal;
@@ -90,7 +112,7 @@ static void    *check_death(void *param)
             exit(EXIT_SUCCESS);
         }
         ft_msleep(data->time_to_die - ms_since_last_meal - 2);
-        while (ms_since_last_meal <= data->time_to_die)
+        while (ms_since_last_meal < data->time_to_die)
         {
             if (gettimeofday(&now, NULL) != 0)
             {
@@ -110,14 +132,6 @@ static void    *check_death(void *param)
         }
         last_meal_cp = data->last_meal;
         sem_post(data->eat_sem);
-        // sem_wait(data->eat_sem);
-        // if (data->meal_to_take == 0)
-        // {
-        //     sem_post(data->eat_sem);
-        //     return ((void *)NULL);
-        // }
-        // sem_post(data->eat_sem);
-        // usleep((data->time_to_die - ms_since_last_meal) * 1000 - 100);
     }
     
 }
@@ -149,7 +163,7 @@ static void    philo_live(t_data *data)
         log_philo(data, SLEEP);
         ft_msleep(data->time_to_sleep);
         log_philo(data, THINK);
-        usleep(100);
+        delay(data);
     }
     sem_post(data->eat_sem);
     sem_post(data->fork);
@@ -188,7 +202,6 @@ void    philo_routine(t_data *data)
 {
     pthread_t   death_checker;
 
-    // usleep(10000);
     sem_wait(data->simulation_stop);
     sem_wait(data->meal_sem);
     data->last_meal = data->simulation_start_time;
@@ -197,15 +210,24 @@ void    philo_routine(t_data *data)
         sem_post(data->simulation_stop);
         print_error("philo_routine", "pthread_create error");
         exit(EXIT_FAILURE);
-        // exit_error("philo_routine", "pthread_create error");
     }
     pthread_detach(death_checker);
     wait_simulation_start(data);
-    // if (data->philo_id % 2)
-    //     ft_msleep(data->time_to_eat / 2);
+    if (data->philo_nbr % 2 == 1)
+    {
+        int down_limit;
+
+        down_limit = data->philo_nbr / 3 + (data->philo_nbr % 3 == 2);
+
+        if (data->philo_id >= down_limit)
+            ft_msleep(data->time_to_eat);
+        if (data->philo_id >= 2 * down_limit)
+            ft_msleep(data->time_to_eat);
+    }
+    if (data->philo_nbr % 2 == 0 && data->philo_id % 2 == 1)
+        ft_msleep(data->time_to_eat);
     usleep(200 * (data->philo_id + 1));
     philo_live(data);
     sem_post(data->meal_sem);
-    // ft_msleep(data->time_to_eat * 2);
     exit(EXIT_SUCCESS);
 }
