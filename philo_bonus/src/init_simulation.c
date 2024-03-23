@@ -6,22 +6,11 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 18:47:50 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/23 15:37:16 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
-
-/*
-	Should create structure, open semp stdout & fork in main process.
-	Then create process for every philo sending SIGSTOP signal right after
-*/
-
-// void	exit_error(char *func, char *msg)
-// {
-// 	print_error(func, msg);
-// 	exit(EXIT_FAILURE);
-// }
 
 // Return -2 in case of invalid arg
 static int	ft_atoi(char *s)
@@ -98,7 +87,8 @@ static void	init_semaphore(t_data *data)
 	data->fork = sem_open(SEM_FORK, O_CREAT | O_EXCL, 0660, data->philo_nbr);
 	if (data->fork == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	data->simulation_stop = sem_open(SEM_SIMULAION_STOP, O_CREAT | O_EXCL, 0660, data->philo_nbr);
+	data->simulation_stop = sem_open(SEM_SIMULAION_STOP, O_CREAT | O_EXCL,
+			0660, data->philo_nbr);
 	if (data->simulation_stop == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 	data->dead_sem = sem_open(SEM_DEAD, O_CREAT | O_EXCL, 0660, 1);
@@ -107,7 +97,8 @@ static void	init_semaphore(t_data *data)
 	data->eat_sem = sem_open(SEM_EAT, O_CREAT | O_EXCL, 0660, 1);
 	if (data->eat_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660, data->philo_nbr);
+	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660,
+			data->philo_nbr);
 	if (data->meal_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 }

@@ -6,32 +6,20 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/22 07:27:24 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/23 15:37:39 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
 
-// void	launch_simulation(t_data *data)
-// {
-// 	int	index;
-
-// 	index = 0;
-// 	while (index < data->philo_nbr)
-// 	{
-// 		sem_post(data->simulation_stop);
-// 		index++;
-// 	}
-// }
-
-void	*meal_check(void *param)
+static void	*meal_check(void *param)
 {
 	t_data	*data;
 	int		index;
 
 	data = (t_data *)param;
 	if (data->meal_to_take == 0)
-		return ((void *)NULL);
+		return ((void *) NULL);
 	index = 0;
 	ft_msleep(998);
 	while (index < data->philo_nbr)
@@ -40,10 +28,10 @@ void	*meal_check(void *param)
 		index++;
 	}
 	sem_post(data->simulation_stop);
-	return ((void *)NULL);
+	return ((void *) NULL);
 }
 
-void	kill_child(t_data *data)
+static void	kill_child(t_data *data)
 {
 	int	index;
 
@@ -54,14 +42,6 @@ void	kill_child(t_data *data)
 		index++;
 	}
 }
-
-/*
-	Is should be possible to make another eat_semaphore.
-	It should be posted when a philosoher ate every meal he need to take.
-	A thread in the main process wait for every new_eat_semaphore
-	Then it post a simulation_stop_sem to exit
-
-*/
 
 /*
 	Init data
@@ -89,11 +69,8 @@ int	main(int ac, char **av)
 	sem_wait(data->simulation_stop);
 	kill_child(data);
 	index = 0;
-	while (index < data->philo_nbr)
-	{
+	while (index++ < data->philo_nbr)
 		sem_post(data->meal_sem);
-		index++;
-	}
 	pthread_join(meal_checker, NULL);
 	exit_simulation(data, NULL, NULL);
 	return (0);

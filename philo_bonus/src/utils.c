@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 18:01:00 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/22 07:35:53 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/23 15:43:18 by madlab           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,20 @@ void	print_error(char *func, char *msg)
 }
 
 /*
+	Exit child ps (philo) properly + signal end to main process via sem_post
+*/
+void	exit_child(t_data *data, char *err_func, char *err_msg)
+{
+	sem_post(data->simulation_stop);
+	if (err_func || err_msg)
+	{
+		print_error(err_func, err_msg);
+		exit(EXIT_FAILURE);
+	}
+	exit(EXIT_SUCCESS);
+}
+
+/*
 	DESTROY SEMAPHORE, free(data) EXIT_ERROR
 */
 void	exit_simulation(t_data *data, char *func, char *err_msg)
@@ -64,9 +78,9 @@ void	exit_simulation(t_data *data, char *func, char *err_msg)
 }
 
 /*
-    Improved sleep
-    ARG:
-    wait_time : in millisecond
+	Improved sleep
+	ARG:
+	wait_time : in millisecond
 */
 void	ft_msleep(long int wait_time)
 {

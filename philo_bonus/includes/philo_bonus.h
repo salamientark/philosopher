@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/21 18:46:23 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/23 15:48:21 by madlab           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,12 @@ typedef struct s_data
 	long			time_to_eat;
 	long			time_to_sleep;
 	int				meal_to_take;
-
 	struct timeval	last_meal;
 	struct timeval	simulation_start_time;
-
 	int				philo_id;
 	int				philo_live;
-	sem_t           *stdout_sem;
-    sem_t           *fork;
+	sem_t			*stdout_sem;
+	sem_t			*fork;
 	sem_t			*dead_sem;
 	sem_t			*meal_sem;
 	sem_t			*eat_sem;
@@ -71,12 +69,17 @@ typedef struct s_data
 // utils.c
 void	print_error(char *func, char *msg);
 void	ft_msleep(long int wait_time);
+void	exit_child(t_data *data, char *err_func, char *err_msg);
 void	exit_simulation(t_data *data, char *func, char *err_msg);
 
 // init_simulation.c;
 t_data	*init_simulation(int ac, char **av);
 
+// check_deather.c
+void	*death_checker(void *param);
+
 // philo.c
-void    philo_routine(t_data *data);
+void	log_philo(t_data *data, char *msg);
+void	philo_routine(t_data *data);
 
 #endif
