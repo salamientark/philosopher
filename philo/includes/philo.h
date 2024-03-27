@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 15:54:41 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/27 12:15:19 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ Except [ philo_nbr ], which need to be superior to 1"
 # define EAT "is eating"
 # define SLEEP "is sleeping"
 # define THINK "is thinking"
+# define ERROR 1
+# define SUCCESS 0
 
 // Philosoph structure
 typedef struct s_philo
@@ -69,7 +71,7 @@ void	ft_msleep(long int wait_time);
 void	ft_msleep(long int wait_time);
 
 // EXIT_ERROR.c
-void	exit_error(char *prog, char *msg);
+void	print_error(char *func_name, char *msg);
 
 // EXIT_SIMULATION.c
 void	exit_simulation(t_data *data_p);

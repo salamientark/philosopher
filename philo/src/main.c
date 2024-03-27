@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 17:09:38 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/27 12:13:17 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /*
 	Set starting time and allow philo thread to start
 */
-void	start_simulation(t_data *data)
+int	start_simulation(t_data *data)
 {
 	int	index;
 
@@ -25,7 +25,7 @@ void	start_simulation(t_data *data)
 		pthread_mutex_lock(&data->dead_lock);
 		data->simulation_end = 1;
 		pthread_mutex_unlock(&data->dead_lock);
-		exit_simulation(data);
+		return (exit_simulation(data), ERROR);
 	}
 	index = 0;
 	while (index < data->philo_nbr)
@@ -36,6 +36,7 @@ void	start_simulation(t_data *data)
 	pthread_mutex_lock(&data->dead_lock);
 	data->simulation_end = 0;
 	pthread_mutex_unlock(&data->dead_lock);
+	return (SUCCESS);
 }
 
 /*
@@ -83,9 +84,12 @@ int	main(int ac, char **av)
 	t_data	*data;
 
 	if (ac != 5 && ac != 6)
-		exit_error("philo", BAD_ARG_NBR);
+		return (print_error("philo", BAD_ARG_NBR), 0);
 	data = init_simulation(ac, av);
-	start_simulation(data);
+	if (!data)
+		return (0);
+	if (start_simulation(data) == ERROR)
+		return (0);
 	monitor(data);
 	exit_simulation(data);
 	return (0);
