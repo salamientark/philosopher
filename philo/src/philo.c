@@ -6,26 +6,11 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/20 15:55:29 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/28 09:18:26 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-
-/*
-    Return data->simulation_end value
-    Mutex protected
-*/
-int	simulation_stopped(t_data *data)
-{
-	int	simulation_stoped;
-
-	simulation_stoped = 0;
-	pthread_mutex_lock(&data->dead_lock);
-	simulation_stoped = data->simulation_end;
-	pthread_mutex_unlock(&data->dead_lock);
-	return (simulation_stoped);
-}
 
 /*
 	Log philosopher action in form:
@@ -109,33 +94,56 @@ static void	philo_eat(t_philo *philo)
 	else
 		ft_msleep(philo->data->time_to_eat);
 	pthread_mutex_unlock(&(philo->data->fork[first_fork]));
-	usleep(700);
 	pthread_mutex_unlock(&(philo->data->fork[second_fork]));
+}
+
+static void	delay(t_philo *philo)
+{
+	struct timeval	now;
+	struct timeval	last_meal_cp;
+	long			ms_since_last_meal;
+
+	pthread_mutex_lock(&philo->data->meal_lock);
+	last_meal_cp = philo->last_meal;
+	pthread_mutex_unlock(&philo->data->meal_lock);
+	gettimeofday(&now, NULL);
+	ms_since_last_meal = 1000 * (now.tv_sec - last_meal_cp.tv_sec)
+		+ (now.tv_usec - last_meal_cp.tv_usec) / 1000;
+	if (philo->data->philo_nbr % 2 == 1)
+	{
+		if (ms_since_last_meal < philo->data->time_to_eat * 3)
+			ft_msleep(3 * philo->data->time_to_eat - ms_since_last_meal);
+		return ;
+	}
+	if (ms_since_last_meal < philo->data->time_to_eat * 2)
+		ft_msleep(2 * philo->data->time_to_eat - ms_since_last_meal);
 }
 
 void	*philo_routine(void *param)
 {
-	t_philo	*philosopher;
+	t_philo	*philosoph;
 
-	philosopher = (t_philo *)param;
-	if (philosopher->data->philo_nbr == 1)
+	philosoph = (t_philo *)param;
+	if (philosoph->data->philo_nbr == 1)
 	{
-		pthread_mutex_lock(&philosopher->data->fork[0]);
-		log_philo(philosopher, TAKE_FORK);
-		ft_msleep(philosopher->data->time_to_die);
-		log_philo(philosopher, DIED);
-		pthread_mutex_unlock(&philosopher->data->fork[0]);
+		pthread_mutex_lock(&philosoph->data->fork[0]);
+		log_philo(philosoph, TAKE_FORK);
+		ft_msleep(philosoph->data->time_to_die + 1);
+		log_philo(philosoph, DIED);
+		pthread_mutex_unlock(&philosoph->data->fork[0]);
 		return (NULL);
 	}
-	while (simulation_stopped(philosopher->data) == -1)
+	while (simulation_stopped(philosoph->data) == -1)
 		usleep(10);
-	if (philosopher->id % 2)
-		usleep(15000);
-	while (!simulation_stopped(philosopher->data))
+	ft_msleep(philosoph->data->time_to_eat * (philosoph->id % 2 == 1));
+	ft_msleep(philosoph->data->time_to_eat * (philosoph->data->philo_nbr % 2
+			&& philosoph->id == philosoph->data->philo_nbr - 1));
+	while (!simulation_stopped(philosoph->data))
 	{
-		philo_eat(philosopher);
-		philo_sleep(philosopher);
-		log_philo(philosopher, THINK);
+		philo_eat(philosoph);
+		philo_sleep(philosoph);
+		log_philo(philosoph, THINK);
+		delay(philosoph);
 	}
 	return (NULL);
 }

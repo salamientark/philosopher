@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/27 12:21:35 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/27 12:22:44 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/28 08:56:55 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,4 +121,19 @@ void	exit_simulation(t_data *data_p)
 	free(data_p->fork);
 	free(data_p->philosopher);
 	free(data_p);
+}
+
+/*
+    Return data->simulation_end value
+    Mutex protected
+*/
+int	simulation_stopped(t_data *data)
+{
+	int	simulation_stoped;
+
+	simulation_stoped = 0;
+	pthread_mutex_lock(&data->dead_lock);
+	simulation_stoped = data->simulation_end;
+	pthread_mutex_unlock(&data->dead_lock);
+	return (simulation_stoped);
 }

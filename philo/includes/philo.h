@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/27 12:15:19 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/28 08:57:27 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,23 +64,17 @@ typedef struct s_data
 	t_philo			*philosopher;
 }				t_data;
 
+// UTILS.C
+int		simulation_stopped(t_data *data);
 int		ft_atoi(char *s);
 void	ft_msleep(long int wait_time);
-
-// FT_TIME.c
-void	ft_msleep(long int wait_time);
-
-// EXIT_ERROR.c
 void	print_error(char *func_name, char *msg);
-
-// EXIT_SIMULATION.c
 void	exit_simulation(t_data *data_p);
 
 // INIT_SIMULATION.C
 t_data	*init_simulation(int ac, char **av);
 
 // philo.c
-int		simulation_stopped(t_data *data);
 void	log_philo(t_philo *philo, char *msg);
 void	*philo_routine(void *param);
 
