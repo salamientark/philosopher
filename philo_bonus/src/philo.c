@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/23 15:47:50 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/03/29 11:06:55 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,18 +131,18 @@ static void	wait_simulation_start(t_data *data)
 		+ data->simulation_start_time.tv_usec / 1000;
 	while (now_ms < simu_start_ms)
 	{
+		usleep(400);
 		if (gettimeofday(&now, NULL) != 0)
 			exit_child(data, "philo_routine", "gettimeofday error");
 		now_ms = 1000 * now.tv_sec + now.tv_usec / 1000;
-		usleep(400);
 	}
 	if (data->philo_nbr % 2 == 0)
 		return (ft_msleep(data->time_to_eat * (data->philo_id % 2 == 1)));
-	philo_sync = data->philo_nbr / 3 + (data->philo_nbr % 3 == 2);
+	philo_sync = data->philo_nbr / 2;
 	if (data->philo_id >= philo_sync)
-		ft_msleep(data->time_to_eat);
-	if (data->philo_id >= 2 * philo_sync)
-		ft_msleep(data->time_to_eat);
+		ft_msleep(data->time_to_eat - 1);
+	if (data->philo_id == data->philo_nbr - 1)
+		ft_msleep(data->time_to_eat - 1);
 }
 
 /*
