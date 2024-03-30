@@ -1,9 +1,0 @@
-WHEN A PROCESS IS "KILLED" THE SEMAPHORE ARE AUTOMATICALLY CLOSES,
-BUT NOT UNLINK
-
-APPARETNLY IF YOU UNLINK A SEMAPHORE, IT WILL WAIT UNTIL EVERY SEMAPHORE IS CLOSES BEFORE DELETING. THE NAME STILL "DOESN'T EXIST" : if you sem_open with the same sem_name, it will be a completly new semaphore.
-
-Philo bonus idea:
-- Find algorithm knowing aprowimatelly how much time it should think 
-    before having new forks available. THis would maintain sem/mutex aquisition order
-    Kind of !
