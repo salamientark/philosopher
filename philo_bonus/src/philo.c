@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/29 11:06:55 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/29 02:06:42 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ void	log_philo(t_data *data, char *msg)
 	sem_wait(data->dead_sem);
 	if (data->philo_live == 0)
 	{
-		sem_post(data->simulation_stop);
-		exit(EXIT_SUCCESS);
+		return ((void) sem_post(data->simulation_stop), (void)
+			sem_post(data->dead_sem), (void) sem_post(data->stdout_sem));
 	}
 	sem_post(data->dead_sem);
 	if (gettimeofday(&now, NULL) != 0)
@@ -163,9 +163,17 @@ void	philo_routine(t_data *data)
 		print_error("philo_routine", "pthread_create error");
 		exit(EXIT_FAILURE);
 	}
-	pthread_detach(death_thread);
 	wait_simulation_start(data);
 	philo_live(data);
+	pthread_join(death_thread, (void **) NULL);
 	sem_post(data->meal_sem);
+	sem_close(data->simulation_stop);
+	sem_close(data->stdout_sem);
+	sem_close(data->fork);
+	sem_close(data->eat_sem);
+	sem_close(data->meal_sem);
+	sem_close(data->dead_sem);
+	free(data->philo_pid);
+	free(data);
 	exit(EXIT_SUCCESS);
 }

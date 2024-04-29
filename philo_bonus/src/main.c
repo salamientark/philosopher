@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/23 15:37:39 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/29 02:01:10 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ static void	kill_child(t_data *data)
 	int	index;
 
 	index = 0;
+	usleep(500);
 	while (index < data->philo_nbr)
 	{
 		kill(data->philo_pid[index], SIGKILL);

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:14:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/23 15:42:55 by madlab           ###   ########.fr       */
+/*   Updated: 2024/04/29 01:57:32 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ void	*death_checker(void *param)
 			&& last_meal_cp.tv_sec == data->last_meal.tv_sec)
 		{
 			log_philo(data, DIED);
+			sem_post(data->meal_sem);
 			exit(EXIT_SUCCESS);
 		}
 		last_meal_cp = data->last_meal;
