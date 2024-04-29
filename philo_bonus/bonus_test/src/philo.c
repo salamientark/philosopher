@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/29 22:09:57 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:19:31 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,38 +21,6 @@
 */
 
 #include "../includes/philo_bonus.h"
-
-/*
-	Print action + block and exit if philo died
-*/
-int	log_philo(t_data *data, char *msg)
-{
-	struct timeval	now;
-	int				timestamp;
-
-	sem_wait(data->stdout_sem);
-	sem_wait(data->dead_sem);
-	if (data->philo_live == 0)
-		return (sem_post(data->simulation_stop), sem_post(data->dead_sem),
-			sem_post(data->stdout_sem), 1);
-	sem_post(data->dead_sem);
-	if (gettimeofday(&now, NULL) != 0)
-		exit_child(data, "check_death", "gettimeofday error");
-	timestamp = (now.tv_sec - data->simulation_start_time.tv_sec) * 1000
-		+ (now.tv_usec - data->simulation_start_time.tv_usec) / 1000;
-	printf("%d %d %s\n", timestamp, data->philo_id + 1, msg);
-	
-	if (*msg == 'd')
-	{
-		sem_post(data->simulation_stop);
-		sem_wait(data->dead_sem);
-		data->philo_live = 0;
-		sem_post(data->dead_sem);
-		return (1);
-	}
-	sem_post(data->stdout_sem);
-	return (0);
-}
 
 /*
 	Avoid data rac
@@ -89,11 +57,9 @@ static void	philo_live(t_data *data)
 	while (1)
 	{
 		sem_wait(data->fork);
-		if (log_philo(data, TAKE_FORK))
-			break ;
+		log_philo(data, TAKE_FORK);
 		sem_wait(data->fork);
-		if (log_philo(data, TAKE_FORK))
-			break ;
+		log_philo(data, TAKE_FORK);
 		if (log_philo(data, EAT))
 			break ;
 		sem_wait(data->eat_sem);
@@ -113,9 +79,6 @@ static void	philo_live(t_data *data)
 		log_philo(data, THINK);
 		delay(data);
 	}
-	sem_post(data->meal_sem);
-	// sem_post(data->fork);
-	// sem_post(data->fork);
 }
 
 /*
@@ -150,29 +113,10 @@ static void	wait_simulation_start(t_data *data)
 		ft_msleep(data->time_to_eat - 1);
 }
 
-/*
-	The sem_post( meal_sem ) only happen if the philo didn't die to signal
-	to the main process it should not kill everybody for the moment.
-	If the philo died the process exit directy without sem_post( meal_sem )
-*/
-void	philo_routine(t_data *data)
+static void	exit_philo_routine(t_data *data)
 {
-	pthread_t	death_thread;
 	char		name[7];
 
-	// sem_wait(data->simulation_stop);
-	sem_wait(data->meal_sem);
-	data->last_meal = data->simulation_start_time;
-	if (pthread_create(&death_thread, NULL, death_checker, (void *)data) != 0)
-	{
-		sem_post(data->simulation_stop);
-		print_error("philo_routine", "pthread_create error");
-		exit(EXIT_FAILURE);
-	}
-	pthread_detach(death_thread);
-	wait_simulation_start(data);
-	philo_live(data);
-	printf("here\n");
 	sem_close(data->simulation_stop);
 	sem_close(data->stdout_sem);
 	sem_close(data->fork);
@@ -181,7 +125,34 @@ void	philo_routine(t_data *data)
 	sem_unlink(sem_name(data->philo_id, 'e', name));
 	sem_close(data->dead_sem);
 	sem_unlink(sem_name(data->philo_id, 'd', name));
+}
+
+/*
+	The sem_post( meal_sem ) only happen if the philo didn't die to signal
+	to the main process it should not kill everybody for the moment.
+	If the philo died the process exit directy without sem_post( meal_sem )
+*/
+void	philo_routine(t_data *data)
+{
+	pthread_t	death_thread;
+
+	sem_wait(data->simulation_stop);
+	sem_wait(data->meal_sem);
+	data->last_meal = data->simulation_start_time;
+	if (pthread_create(&death_thread, NULL, death_checker, (void *)data) != 0)
+	{
+		sem_post(data->simulation_stop);
+		print_error("philo_routine", "pthread_create error");
+		exit(EXIT_FAILURE);
+	}
+	wait_simulation_start(data);
+	philo_live(data);
+	sem_post(data->meal_sem);
+	sem_wait(data->dead_sem);
+	data->philo_live = 0;
+	sem_post(data->dead_sem);
+	pthread_join(death_thread, (void **) NULL);
+	exit_philo_routine(data);
 	free(data->philo_pid);
 	free(data);
-	exit(EXIT_SUCCESS);
 }

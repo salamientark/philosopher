@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/29 22:19:12 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:13:06 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static void	init_semaphore(t_data *data)
 	if (data->fork == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 	data->simulation_stop = sem_open(SEM_SIMULAION_STOP, O_CREAT | O_EXCL,
-			0660, 1);
+			0660, data->philo_nbr);
 	if (data->simulation_stop == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660,
