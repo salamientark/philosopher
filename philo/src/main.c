@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/27 12:13:17 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/29 02:31:59 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void	monitor(t_data *data_p)
 			log_philo(&data_p->philosopher[index], DIED);
 		index++;
 		index %= data_p->philo_nbr;
+		usleep(500);
 	}
 }
 
