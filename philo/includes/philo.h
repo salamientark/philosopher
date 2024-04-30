@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 13:09:50 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 15:25:59 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 [ time_to_sleep ] *[ number_of_meal_each_philo_must_have ]*\n\
 number_of_meal_each_philo_must_have : Optionnal argument"
 # define INVALID_ARG "Argument need to be strictly positive integer\n\
-Except [ philo_nbr ], which need to be between 1 and 250"
+Except [ philo_nbr ], which need to be superior to 1"
 # define TAKE_FORK "has taken a fork"
 # define DIED "died"
 # define EAT "is eating"
@@ -34,7 +34,6 @@ Except [ philo_nbr ], which need to be between 1 and 250"
 # define THINK "is thinking"
 # define ERROR 1
 # define SUCCESS 0
-# define MAX_PHILO 250
 
 // Philosoph structure
 typedef struct s_philo
@@ -76,9 +75,7 @@ void	exit_simulation(t_data *data_p);
 t_data	*init_simulation(int ac, char **av);
 
 // philo.c
-void	*philo_routine(void *param);
-
-// main.c
 int		log_philo(t_philo *philo, char *msg);
+void	*philo_routine(void *param);
 
 #endif
