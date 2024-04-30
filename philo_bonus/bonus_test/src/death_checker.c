@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:14:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/29 21:07:00 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 21:13:46 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ static void	prepare_to_die(t_data *data, struct timeval last_meal_cp)
 	if (ms_since_last_meal > data->time_to_die)
 	{
 		log_philo(data, DIED);
-		exit(EXIT_SUCCESS);
+		return ;
+		// exit(EXIT_SUCCESS);
 	}
 	ft_msleep(data->time_to_die - ms_since_last_meal - 2);
 	while (ms_since_last_meal < data->time_to_die)
@@ -71,8 +72,16 @@ void	*death_checker(void *param)
 			&& last_meal_cp.tv_sec == data->last_meal.tv_sec)
 		{
 			log_philo(data, DIED);
+			sem_post(data->eat_sem);
 			return ((void *) NULL);
 		}
+		sem_wait(data->dead_sem);
+		if (data->philo_live == 0)
+		{
+			sem_post(data->dead_sem);
+			return ((void *) NULL);
+		}
+		sem_post(data->dead_sem);
 		last_meal_cp = data->last_meal;
 		sem_post(data->eat_sem);
 	}

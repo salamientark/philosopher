@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 20:28:04 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 21:15:42 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,23 @@ static void	exit_philo_routine(t_data *data)
 	sem_close(data->fork);
 	sem_close(data->meal_sem);
 	sem_close(data->eat_sem);
+	sem_close(data->end_simu);
 	sem_unlink(sem_name(data->philo_id, 'e', name));
 	sem_close(data->dead_sem);
 	sem_unlink(sem_name(data->philo_id, 'd', name));
+}
+
+void	*check_simulation_end(void *param)
+{
+	t_data *data;
+
+	data = (t_data *)param;
+	sem_wait(data->end_simu);
+	sem_wait(data->dead_sem);
+	data->philo_live = 0;
+	sem_post(data->dead_sem);
+	sem_post(data->end_simu);
+	return ((void *) NULL);
 }
 
 /*
@@ -135,6 +149,7 @@ static void	exit_philo_routine(t_data *data)
 void	philo_routine(t_data *data)
 {
 	pthread_t	death_thread;
+	pthread_t	end_simu;
 
 	sem_wait(data->simulation_stop);
 	sem_wait(data->meal_sem);
@@ -145,13 +160,23 @@ void	philo_routine(t_data *data)
 		print_error("philo_routine", "pthread_create error");
 		exit(EXIT_FAILURE);
 	}
+	if (pthread_create(&end_simu, NULL, check_simulation_end, (void *)data) != 0)
+	{
+		sem_post(data->simulation_stop);
+		print_error("philo_routine", "pthread_create error");
+		exit(EXIT_FAILURE);
+	}
 	wait_simulation_start(data);
 	philo_live(data);
+	printf("Exit philo_live\n");
 	sem_post(data->meal_sem);
 	sem_wait(data->dead_sem);
 	data->philo_live = 0;
 	sem_post(data->dead_sem);
+	printf("Go join pthread\n");
 	pthread_join(death_thread, (void **) NULL);
+	pthread_join(end_simu, (void **) NULL);
+	printf("Succesfuly join pthread\n");
 	exit_philo_routine(data);
 	free(data->philo_pid);
 	free(data);

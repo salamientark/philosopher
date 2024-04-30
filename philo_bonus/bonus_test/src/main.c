@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/29 23:19:19 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 21:17:12 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,12 @@ int	log_philo(t_data *data, char *msg)
 	printf("%d %d %s\n", timestamp, data->philo_id + 1, msg);
 	if (*msg == 'd')
 	{
-		sem_post(data->simulation_stop);
 		sem_wait(data->dead_sem);
 		data->philo_live = 0;
 		sem_post(data->dead_sem);
-		return (1);
+		sem_post(data->simulation_stop);
+		usleep(1000);
+		return (sem_post(data->stdout_sem), 1);
 	}
 	sem_post(data->stdout_sem);
 	return (0);
@@ -52,10 +53,12 @@ void	exit_simulation(t_data *data, char *func, char *err_msg)
 	sem_close(data->fork);
 	sem_close(data->meal_sem);
 	sem_close(data->simulation_stop);
+	sem_close(data->end_simu);
 	sem_unlink(SEM_STDOUT);
 	sem_unlink(SEM_FORK);
 	sem_unlink(SEM_MEAL);
 	sem_unlink(SEM_SIMULAION_STOP);
+	sem_unlink(SEM_END_SIMU);
 	free(data->philo_pid);
 	free(data);
 	data = NULL;
@@ -121,11 +124,20 @@ int	main(int ac, char **av)
 	}
 	ft_msleep(999);
 	sem_wait(data->simulation_stop);
+	sem_post(data->end_simu);
 	ft_msleep(100);
 	index = 0;
 	while (index++ < data->philo_nbr)
 		sem_post(data->meal_sem);
 	pthread_join(meal_checker, NULL);
+	index = 0;
+	while (index < data->philo_nbr)
+	{
+		// waitpid(data->philo_pid[index], NULL, 0);
+		wait(NULL);
+		printf("Sucesfully waited %d\n", index);
+		index++;
+	}
 	exit_simulation(data, NULL, NULL);
 	return (0);
 }

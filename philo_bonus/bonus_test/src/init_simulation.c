@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 00:22:18 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 20:38:18 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,9 @@ static void	init_semaphore(t_data *data)
 	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660,
 			data->philo_nbr);
 	if (data->meal_sem == SEM_FAILED)
+		exit_simulation(data, "init_semaphore", "sem_open failed");
+	data->end_simu = sem_open(SEM_END_SIMU, O_CREAT | O_EXCL, 0660, 1);
+	if (data->end_simu == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 }
 
@@ -129,6 +132,7 @@ t_data	*init_simulation(int ac, char **av)
 	sem_unlink(SEM_MEAL);
 	sem_unlink(SEM_STDOUT);
 	sem_unlink(SEM_SIMULAION_STOP);
+	sem_unlink(SEM_END_SIMU);
 	data = (t_data *)malloc(sizeof(t_data));
 	if (!data)
 	{
@@ -137,6 +141,7 @@ t_data	*init_simulation(int ac, char **av)
 	}
 	init_data(data, ac, av);
 	init_semaphore(data);
+	sem_wait(data->end_simu);
 	if (data->meal_to_take == 0)
 		exit_simulation(data, NULL, NULL);
 	if (data->philo_nbr > 200)
