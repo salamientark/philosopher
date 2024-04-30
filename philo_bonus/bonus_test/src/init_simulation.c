@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/29 23:13:06 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 00:22:18 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,9 +136,11 @@ t_data	*init_simulation(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 	init_data(data, ac, av);
+	init_semaphore(data);
 	if (data->meal_to_take == 0)
 		exit_simulation(data, NULL, NULL);
-	init_semaphore(data);
+	if (data->philo_nbr > 200)
+		exit_simulation(data, "too much philosopher", "(max_limit = 200)");
 	init_philo(data);
 	return (data);
 }
