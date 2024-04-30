@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/29 02:06:42 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:19:31 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,38 +23,6 @@
 #include "../includes/philo_bonus.h"
 
 /*
-	Print action + block and exit if philo died
-*/
-void	log_philo(t_data *data, char *msg)
-{
-	struct timeval	now;
-	int				timestamp;
-
-	sem_wait(data->stdout_sem);
-	sem_wait(data->dead_sem);
-	if (data->philo_live == 0)
-	{
-		return ((void) sem_post(data->simulation_stop), (void)
-			sem_post(data->dead_sem), (void) sem_post(data->stdout_sem));
-	}
-	sem_post(data->dead_sem);
-	if (gettimeofday(&now, NULL) != 0)
-		exit_child(data, "check_death", "gettimeofday error");
-	timestamp = (now.tv_sec - data->simulation_start_time.tv_sec) * 1000
-		+ (now.tv_usec - data->simulation_start_time.tv_usec) / 1000;
-	printf("%d %d %s\n", timestamp, data->philo_id + 1, msg);
-	if (*msg == 'd')
-	{
-		sem_wait(data->dead_sem);
-		data->philo_live = 0;
-		sem_post(data->dead_sem);
-		sem_post(data->simulation_stop);
-		exit(EXIT_SUCCESS);
-	}
-	sem_post(data->stdout_sem);
-}
-
-/*
 	Avoid data rac
 */
 static void	delay(t_data *data)
@@ -62,8 +30,8 @@ static void	delay(t_data *data)
 	struct timeval	now;
 	long int		ms_since_last_meal;
 
-	gettimeofday(&now, NULL);
 	sem_wait(data->eat_sem);
+	gettimeofday(&now, NULL);
 	ms_since_last_meal = 1000 * (now.tv_sec - data->last_meal.tv_sec)
 		+ (now.tv_usec - data->last_meal.tv_usec) / 1000;
 	sem_post(data->eat_sem);
@@ -92,25 +60,25 @@ static void	philo_live(t_data *data)
 		log_philo(data, TAKE_FORK);
 		sem_wait(data->fork);
 		log_philo(data, TAKE_FORK);
-		log_philo(data, EAT);
+		if (log_philo(data, EAT))
+			break ;
 		sem_wait(data->eat_sem);
 		if (gettimeofday(&data->last_meal, NULL) != 0)
 			exit_child(data, "check_death", "gettimeofday error");
 		sem_post(data->eat_sem);
+		ft_msleep(data->time_to_eat);
+		sem_post(data->fork);
+		sem_post(data->fork);
 		if (data->meal_to_take > 0)
 			data->meal_to_take--;
 		if (data->meal_to_take == 0)
 			break ;
-		ft_msleep(data->time_to_eat);
-		sem_post(data->fork);
-		sem_post(data->fork);
-		log_philo(data, SLEEP);
+		if (log_philo(data, SLEEP))
+			break ;
 		ft_msleep(data->time_to_sleep);
 		log_philo(data, THINK);
 		delay(data);
 	}
-	sem_post(data->fork);
-	sem_post(data->fork);
 }
 
 /*
@@ -145,6 +113,20 @@ static void	wait_simulation_start(t_data *data)
 		ft_msleep(data->time_to_eat - 1);
 }
 
+static void	exit_philo_routine(t_data *data)
+{
+	char		name[7];
+
+	sem_close(data->simulation_stop);
+	sem_close(data->stdout_sem);
+	sem_close(data->fork);
+	sem_close(data->meal_sem);
+	sem_close(data->eat_sem);
+	sem_unlink(sem_name(data->philo_id, 'e', name));
+	sem_close(data->dead_sem);
+	sem_unlink(sem_name(data->philo_id, 'd', name));
+}
+
 /*
 	The sem_post( meal_sem ) only happen if the philo didn't die to signal
 	to the main process it should not kill everybody for the moment.
@@ -165,15 +147,12 @@ void	philo_routine(t_data *data)
 	}
 	wait_simulation_start(data);
 	philo_live(data);
-	pthread_join(death_thread, (void **) NULL);
 	sem_post(data->meal_sem);
-	sem_close(data->simulation_stop);
-	sem_close(data->stdout_sem);
-	sem_close(data->fork);
-	sem_close(data->eat_sem);
-	sem_close(data->meal_sem);
-	sem_close(data->dead_sem);
+	sem_wait(data->dead_sem);
+	data->philo_live = 0;
+	sem_post(data->dead_sem);
+	pthread_join(death_thread, (void **) NULL);
+	exit_philo_routine(data);
 	free(data->philo_pid);
 	free(data);
-	exit(EXIT_SUCCESS);
 }

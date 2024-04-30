@@ -25,11 +25,11 @@ OBJ_SRC = $(addprefix $(OBJ_DIR)/, $(SRC_FILE:.c=.o))
 all : $(PROJECT)
 
 $(PROJECT) : $(OBJ_SRC)
-	$(CC) $(CFLAGS) -lpthread $(OBJ_SRC) -o $(PROJECT) -pthread
+	$(CC) $(CFLAGS) $(OBJ_SRC) -o $(PROJECT) -pthread
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -lpthread -I ./$(HEADER_DIR)  -c $< -o $@
+	$(CC) $(CFLAGS) -I ./$(HEADER_DIR)  -c $< -o $@
 
 fclean : clean
 	rm -f $(PROJECT)

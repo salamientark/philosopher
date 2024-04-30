@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/27 12:28:15 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/04/30 12:48:11 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static t_data	*init_data(t_data *data_p, int ac, char **av)
 		data_p->meal_per_philo = ft_atoi(av[5]);
 	if (ac == 6)
 		data_p->meal_to_take = (data_p->meal_per_philo * data_p->philo_nbr);
-	if (data_p->philo_nbr <= 0
+	if (data_p->philo_nbr <= 0 || data_p->philo_nbr > MAX_PHILO
 		|| data_p->time_to_die <= 0 || data_p->time_to_eat <= 0
 		|| data_p->time_to_sleep <= 0 || data_p->meal_per_philo == -2)
 		return (free(data_p), print_error("philo", INVALID_ARG), NULL);
