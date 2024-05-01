@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:42 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 13:14:03 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 18:09:59 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int	log_philo(t_philo *philo, char *msg)
 		philo->alive = 0;
 		philo->data->simulation_end = 1;
 		pthread_mutex_unlock(&philo->data->dead_lock);
-		return (1);
+		return (pthread_mutex_unlock(&philo->data->stdout_lock), 1);
 	}
 	pthread_mutex_unlock(&philo->data->stdout_lock);
 	return (0);
