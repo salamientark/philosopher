@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:14:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 21:13:46 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:07:03 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@ void	*death_checker(void *param)
 			sem_post(data->eat_sem);
 			return ((void *) NULL);
 		}
+		last_meal_cp = data->last_meal;
+		sem_post(data->eat_sem);
 		sem_wait(data->dead_sem);
 		if (data->philo_live == 0)
 		{
@@ -82,7 +84,5 @@ void	*death_checker(void *param)
 			return ((void *) NULL);
 		}
 		sem_post(data->dead_sem);
-		last_meal_cp = data->last_meal;
-		sem_post(data->eat_sem);
 	}
 }

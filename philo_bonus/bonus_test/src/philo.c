@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 21:15:42 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 09:59:49 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,11 @@ static void	philo_live(t_data *data)
 		sem_wait(data->fork);
 		log_philo(data, TAKE_FORK);
 		if (log_philo(data, EAT))
+		{
+			sem_post(data->fork);
+			sem_post(data->fork);
 			break ;
+		}
 		sem_wait(data->eat_sem);
 		if (gettimeofday(&data->last_meal, NULL) != 0)
 			exit_child(data, "check_death", "gettimeofday error");
@@ -168,15 +172,12 @@ void	philo_routine(t_data *data)
 	}
 	wait_simulation_start(data);
 	philo_live(data);
-	printf("Exit philo_live\n");
 	sem_post(data->meal_sem);
 	sem_wait(data->dead_sem);
 	data->philo_live = 0;
 	sem_post(data->dead_sem);
-	printf("Go join pthread\n");
 	pthread_join(death_thread, (void **) NULL);
 	pthread_join(end_simu, (void **) NULL);
-	printf("Succesfuly join pthread\n");
 	exit_philo_routine(data);
 	free(data->philo_pid);
 	free(data);

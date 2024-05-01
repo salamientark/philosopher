@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 21:17:12 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:03:49 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,11 @@ int	log_philo(t_data *data, char *msg)
 	printf("%d %d %s\n", timestamp, data->philo_id + 1, msg);
 	if (*msg == 'd')
 	{
+		sem_post(data->simulation_stop);
 		sem_wait(data->dead_sem);
 		data->philo_live = 0;
 		sem_post(data->dead_sem);
-		sem_post(data->simulation_stop);
-		usleep(1000);
+		usleep(10000);
 		return (sem_post(data->stdout_sem), 1);
 	}
 	sem_post(data->stdout_sem);
@@ -133,8 +133,8 @@ int	main(int ac, char **av)
 	index = 0;
 	while (index < data->philo_nbr)
 	{
-		// waitpid(data->philo_pid[index], NULL, 0);
-		wait(NULL);
+		waitpid(-1, NULL, 0);
+		// wait(NULL);
 		printf("Sucesfully waited %d\n", index);
 		index++;
 	}
