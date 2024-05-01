@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:50:04 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 16:42:03 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ typedef struct s_data
 	long			time_to_sleep;
 	int				meal_to_take;
 	struct timeval	last_meal;
-	struct timeval	simulation_start_time;
+	struct timeval	start;
 	int				philo_id;
 	int				philo_live;
 	sem_t			*stdout_sem;

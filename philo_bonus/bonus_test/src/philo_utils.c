@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/01 11:36:38 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 12:25:21 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 16:42:03 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ int	log_philo(t_data *data, char *msg)
 	sem_post(data->dead_sem);
 	if (gettimeofday(&now, NULL) != 0)
 		exit_child(data, "check_death", "gettimeofday error");
-	timestamp = (now.tv_sec - data->simulation_start_time.tv_sec) * 1000
-		+ (now.tv_usec - data->simulation_start_time.tv_usec) / 1000;
+	timestamp = (now.tv_sec - data->start.tv_sec) * 1000
+		+ (now.tv_usec - data->start.tv_usec) / 1000;
 	printf("%d %d %s\n", timestamp, data->philo_id + 1, msg);
 	if (*msg == 'd')
 	{

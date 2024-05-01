@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:14:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:00:31 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 16:42:46 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,16 @@ static void	prepare_to_die(t_data *data, struct timeval last_meal_cp)
 		log_philo(data, DIED);
 		return ;
 	}
-	ft_msleep(data->time_to_die - ms_since_last_meal - 2);
 	while (ms_since_last_meal < data->time_to_die)
 	{
 		if (gettimeofday(&now, NULL) != 0)
 			exit_child(data, "check_death", "gettimeofday error");
 		ms_since_last_meal = 1000 * (now.tv_sec - last_meal_cp.tv_sec)
 			+ (now.tv_usec - last_meal_cp.tv_usec) / 1000;
+		sem_wait(data->dead_sem);
+		if (data->philo_live == 0)
+			return ((void) sem_post(data->dead_sem));
+		sem_post(data->dead_sem);
 		usleep(500);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 12:22:07 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 16:42:03 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,9 @@ static void	init_philo(t_data *data)
 	int	index;
 
 	index = 0;
-	if (gettimeofday(&data->simulation_start_time, NULL) != 0)
+	if (gettimeofday(&data->start, NULL) != 0)
 		exit_simulation(data, "init_philo", "gettimofday error");
-	data->simulation_start_time.tv_sec += 1;
+	data->start.tv_sec += 1;
 	while (index < data->philo_nbr)
 	{
 		data->philo_pid[index] = fork();
