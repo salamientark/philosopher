@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 00:21:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 18:13:50 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 18:24:13 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,18 +89,14 @@ static void	delay(t_philo *philo)
 		ft_msleep(2 * philo->data->time_to_eat - ms_since_last_meal - 1);
 }
 
-static int	wait_to_start(t_philo *philo)
+static void	wait_to_start(t_philo *philo)
 {
 	if (philo->data->time_to_eat > philo->data->time_to_die)
-	{
-		ft_msleep(philo->data->time_to_die + 1);
-		log_philo(philo, DIED);
-		return (1);
-	}
+		return ;
 	ft_msleep(philo->data->time_to_eat * (philo->id % 2 == 1));
 	ft_msleep(philo->data->time_to_eat * (philo->data->philo_nbr % 2
 			&& philo->id == philo->data->philo_nbr - 1));
-	return (0);
+	return ;
 }
 
 void	*philo_routine(void *param)
@@ -119,8 +115,7 @@ void	*philo_routine(void *param)
 	}
 	while (simulation_stopped(philosoph->data) == -1)
 		usleep(10);
-	if (wait_to_start(philosoph) == 1)
-		return (NULL);
+	wait_to_start(philosoph);
 	while (!simulation_stopped(philosoph->data))
 	{
 		philo_eat(philosoph);
