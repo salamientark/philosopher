@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:06:06 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:08:58 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,10 +100,21 @@ static void	*meal_check(void *param)
 // 	}
 // }
 
-// static void	end_simulation(t_data *data, pthread_t meal_checker)
-// {
-	// 
-// }
+static void	end_simulation(t_data *data, pthread_t meal_checker)
+{
+	int	index;
+
+	index = 0;
+	sem_post(data->end_simu);
+	ft_msleep(100);
+	index = 0;
+	while (index++ < data->philo_nbr)
+		sem_post(data->meal_sem);
+	pthread_join(meal_checker, NULL);
+	index = 0;
+	while (index++ < data->philo_nbr)
+		waitpid(-1, NULL, 0);
+}
 
 /*
 	Init data
@@ -114,7 +125,6 @@ int	main(int ac, char **av)
 {
 	t_data		*data;
 	pthread_t	meal_checker;
-	int			index;
 
 	if (ac != 5 && ac != 6)
 	{
@@ -130,15 +140,7 @@ int	main(int ac, char **av)
 	}
 	ft_msleep(999);
 	sem_wait(data->simulation_stop);
-	sem_post(data->end_simu);
-	ft_msleep(100);
-	index = 0;
-	while (index++ < data->philo_nbr)
-		sem_post(data->meal_sem);
-	pthread_join(meal_checker, NULL);
-	index = 0;
-	while (index++ < data->philo_nbr)
-		waitpid(-1, NULL, 0);
+	end_simulation(data, meal_checker);
 	exit_simulation(data, NULL, NULL);
 	return (0);
 }
