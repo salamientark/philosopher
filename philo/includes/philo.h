@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 15:50:55 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 15:25:59 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 17:55:19 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 
 # define INT_MAX 2147483647
 # define INT_MIN -2147483648
+# define MAX_PHILO 200
 # define BAD_ARG_NBR "./philo [ philo_nbr ] [ time_to_die ] [ time_to_eat ] \
 [ time_to_sleep ] *[ number_of_meal_each_philo_must_have ]*\n\
 number_of_meal_each_philo_must_have : Optionnal argument"

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/23 15:48:21 by madlab           ###   ########.fr       */
+/*   Updated: 2024/05/01 16:42:03 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,23 +27,23 @@
 
 # define INT_MAX 2147483647
 # define INT_MIN -2147483648
+# define MAX_PHILO_NBR 200
 # define BAD_ARG_NBR "./philo_bonus [ philo_nbr ] [ time_to_die ] \
 [ time_to_eat ] [ time_to_sleep ] \
 *[ number_of_meal_each_philo_must_have ]*\n\
 number_of_meal_each_philo_must_have : Optionnal argument"
 # define INVALID_ARG "Argument need to be strictly positive integer\n\
-Except [ philo_nbr ], which need to be superior to 1"
+Except [ philo_nbr ], which need to be between 1-200"
 # define TAKE_FORK "has taken a fork"
 # define DIED "died"
 # define EAT "is eating"
 # define SLEEP "is sleeping"
 # define THINK "is thinking"
 # define SEM_STDOUT "/philo_stdout\0"
-# define SEM_DEAD "/philo_dead\0"
 # define SEM_FORK "/philo_fork\0"
 # define SEM_MEAL "/philo_meal\0"
-# define SEM_EAT "/philo_eat\0"
 # define SEM_SIMULAION_STOP "/philo_simulation_stop\0"
+# define SEM_END_SIMU "/philo_end_simu\0"
 
 // Shared data structure
 typedef struct s_data
@@ -54,7 +54,7 @@ typedef struct s_data
 	long			time_to_sleep;
 	int				meal_to_take;
 	struct timeval	last_meal;
-	struct timeval	simulation_start_time;
+	struct timeval	start;
 	int				philo_id;
 	int				philo_live;
 	sem_t			*stdout_sem;
@@ -63,23 +63,31 @@ typedef struct s_data
 	sem_t			*meal_sem;
 	sem_t			*eat_sem;
 	sem_t			*simulation_stop;
+	sem_t			*end_simu;
 	pid_t			*philo_pid;
 }				t_data;
 
 // utils.c
-void	print_error(char *func, char *msg);
-void	ft_msleep(long int wait_time);
-void	exit_child(t_data *data, char *err_func, char *err_msg);
-void	exit_simulation(t_data *data, char *func, char *err_msg);
+int			ft_atoi(char *s);
+void		print_error(char *func, char *msg);
+void		ft_msleep(long int wait_time);
+void		exit_child(t_data *data, char *err_func, char *err_msg);
+const char	*sem_name(int id, char type, char name[]);
 
 // init_simulation.c;
-t_data	*init_simulation(int ac, char **av);
+t_data		*init_simulation(int ac, char **av);
 
-// check_deather.c
-void	*death_checker(void *param);
+// philo_thread.c
+void		*check_simu_end(void *param);
+void		*death_checker(void *param);
+
+// philo_utils.c
+int			philo_eat(t_data *data);
+int			philo_sleep(t_data *data);
+int			log_philo(t_data *data, char *msg);
 
 // philo.c
-void	log_philo(t_data *data, char *msg);
-void	philo_routine(t_data *data);
+void		philo_routine(t_data *data);
+void		exit_simulation(t_data *data, char *func, char *err_msg);
 
 #endif

@@ -6,41 +6,11 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/23 15:37:16 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 16:42:03 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
-
-// Return -2 in case of invalid arg
-static int	ft_atoi(char *s)
-{
-	long	nbr;
-	int		sign;
-	int		index;
-
-	sign = 1;
-	nbr = 0;
-	index = 0;
-	while (s[index] && ((9 <= s[index] && s[index] <= 13) || s[index] == ' '))
-		index++;
-	while (s[index] && (s[index] == '-' || s[index] == '+'))
-	{
-		if (s[index] == '-')
-			sign *= -1;
-		index++;
-	}
-	while (s[index] && ('0' <= s[index] && s[index] <= '9'))
-	{
-		nbr = 10 * nbr + (s[index] - '0');
-		if ((sign && nbr > INT_MAX) || (-nbr) < INT_MIN)
-			return (-2);
-		index++;
-	}
-	if (s[index] || sign == -1)
-		return (-2);
-	return (sign * nbr);
-}
 
 /*
 	Init data
@@ -61,17 +31,17 @@ static void	init_data(t_data *data_p, int ac, char **av)
 		data_p->meal_to_take = ft_atoi(av[5]);
 	if (data_p->philo_nbr <= 0 || data_p->time_to_die <= 0
 		|| data_p->time_to_eat <= 0 || data_p->time_to_sleep <= 0
-		|| data_p->meal_to_take == -2)
+		|| data_p->meal_to_take == -2 || data_p->philo_nbr > MAX_PHILO_NBR)
 	{
 		free(data_p);
 		print_error("philo", INVALID_ARG);
-		exit(EXIT_SUCCESS);
+		exit(EXIT_FAILURE);
 	}
 	data_p->philo_pid = (pid_t *)malloc(sizeof(pid_t) * data_p->philo_nbr);
 	if (!data_p->philo_pid)
 	{
 		free(data_p);
-		printf("%s : %s\n", "philo", INVALID_ARG);
+		print_error("init_data", "malloc error");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -91,16 +61,37 @@ static void	init_semaphore(t_data *data)
 			0660, data->philo_nbr);
 	if (data->simulation_stop == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
-	data->dead_sem = sem_open(SEM_DEAD, O_CREAT | O_EXCL, 0660, 1);
-	if (data->dead_sem == SEM_FAILED)
-		exit_simulation(data, "init_semaphore", "sem_open failed");
-	data->eat_sem = sem_open(SEM_EAT, O_CREAT | O_EXCL, 0660, 1);
-	if (data->eat_sem == SEM_FAILED)
-		exit_simulation(data, "init_semaphore", "sem_open failed");
 	data->meal_sem = sem_open(SEM_MEAL, O_CREAT | O_EXCL, 0660,
 			data->philo_nbr);
 	if (data->meal_sem == SEM_FAILED)
 		exit_simulation(data, "init_semaphore", "sem_open failed");
+	data->end_simu = sem_open(SEM_END_SIMU, O_CREAT | O_EXCL, 0660, 1);
+	if (data->end_simu == SEM_FAILED)
+		exit_simulation(data, "init_semaphore", "sem_open failed");
+}
+
+static void	add_philo_sem(t_data *data)
+{
+	char	name[7];
+
+	sem_unlink(sem_name(data->philo_id, 'd', name));
+	data->dead_sem = sem_open(sem_name(data->philo_id, 'd', name), O_CREAT
+			| O_EXCL, 0660, 1);
+	if (data->dead_sem == SEM_FAILED)
+	{
+		sem_post(data->end_simu);
+		exit_simulation(data, "init_semaphore", "sem_open failed");
+	}
+	sem_unlink(sem_name(data->philo_id, 'e', name));
+	data->eat_sem = sem_open(sem_name(data->philo_id, 'e', name), O_CREAT
+			| O_EXCL, 0660, 1);
+	if (data->eat_sem == SEM_FAILED)
+	{
+		sem_close(data->dead_sem);
+		sem_unlink(sem_name(data->philo_id, 'd', name));
+		sem_post(data->end_simu);
+		exit_simulation(data, "init_semaphore", "sem_open failed");
+	}
 }
 
 /*
@@ -111,9 +102,9 @@ static void	init_philo(t_data *data)
 	int	index;
 
 	index = 0;
-	if (gettimeofday(&data->simulation_start_time, NULL) != 0)
+	if (gettimeofday(&data->start, NULL) != 0)
 		exit_simulation(data, "init_philo", "gettimofday error");
-	data->simulation_start_time.tv_sec += 1;
+	data->start.tv_sec += 1;
 	while (index < data->philo_nbr)
 	{
 		data->philo_pid[index] = fork();
@@ -126,6 +117,7 @@ static void	init_philo(t_data *data)
 		if (data->philo_pid[index] == 0)
 		{
 			data->philo_id = index;
+			add_philo_sem(data);
 			philo_routine(data);
 			exit(EXIT_SUCCESS);
 		}
@@ -140,22 +132,27 @@ t_data	*init_simulation(int ac, char **av)
 {
 	t_data	*data;
 
-	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_MEAL);
-	sem_unlink(SEM_EAT);
-	sem_unlink(SEM_STDOUT);
-	sem_unlink(SEM_DEAD);
-	sem_unlink(SEM_SIMULAION_STOP);
 	data = (t_data *)malloc(sizeof(t_data));
 	if (!data)
-	{
 		print_error("init_simulation", "malloc error");
+	if (!data)
 		exit(EXIT_FAILURE);
-	}
 	init_data(data, ac, av);
+	if (data->philo_nbr == 1)
+	{
+		printf("0 1 has taken a fork\n");
+		ft_msleep(data->time_to_die);
+		printf("%ld 1 died\n", data->time_to_die);
+		free(data->philo_pid);
+		free(data);
+		exit(EXIT_SUCCESS);
+	}
+	init_semaphore(data);
+	sem_wait(data->end_simu);
 	if (data->meal_to_take == 0)
 		exit_simulation(data, NULL, NULL);
-	init_semaphore(data);
+	if (data->philo_nbr > MAX_PHILO_NBR)
+		exit_simulation(data, "too much philosopher", "(max_limit = 200)");
 	init_philo(data);
 	return (data);
 }

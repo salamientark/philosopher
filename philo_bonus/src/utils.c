@@ -6,11 +6,41 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 18:01:00 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/03/23 15:43:18 by madlab           ###   ########.fr       */
+/*   Updated: 2024/04/29 22:14:00 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
+
+// Return -2 in case of invalid arg
+int	ft_atoi(char *s)
+{
+	long	nbr;
+	int		sign;
+	int		index;
+
+	sign = 1;
+	nbr = 0;
+	index = 0;
+	while (s[index] && ((9 <= s[index] && s[index] <= 13) || s[index] == ' '))
+		index++;
+	while (s[index] && (s[index] == '-' || s[index] == '+'))
+	{
+		if (s[index] == '-')
+			sign *= -1;
+		index++;
+	}
+	while (s[index] && ('0' <= s[index] && s[index] <= '9'))
+	{
+		nbr = 10 * nbr + (s[index] - '0');
+		if ((sign && nbr > INT_MAX) || (-nbr) < INT_MIN)
+			return (-2);
+		index++;
+	}
+	if (s[index] || sign == -1)
+		return (-2);
+	return (sign * nbr);
+}
 
 void	print_error(char *func, char *msg)
 {
@@ -51,30 +81,16 @@ void	exit_child(t_data *data, char *err_func, char *err_msg)
 	exit(EXIT_SUCCESS);
 }
 
-/*
-	DESTROY SEMAPHORE, free(data) EXIT_ERROR
-*/
-void	exit_simulation(t_data *data, char *func, char *err_msg)
+const char	*sem_name(int id, char type, char name[])
 {
-	sem_close(data->stdout_sem);
-	sem_close(data->fork);
-	sem_close(data->dead_sem);
-	sem_close(data->eat_sem);
-	sem_close(data->meal_sem);
-	sem_close(data->simulation_stop);
-	sem_unlink(SEM_STDOUT);
-	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_DEAD);
-	sem_unlink(SEM_MEAL);
-	sem_unlink(SEM_EAT);
-	sem_unlink(SEM_SIMULAION_STOP);
-	free(data->philo_pid);
-	free(data);
-	data = NULL;
-	if (!func || !err_msg)
-		exit(EXIT_SUCCESS);
-	print_error(func, err_msg);
-	exit(EXIT_FAILURE);
+	name[0] = '/';
+	name[1] = id / 100 + '0';
+	name[2] = (id / 10) % 10 + '0';
+	name[3] = id % 10 + '0';
+	name[4] = '_';
+	name[5] = type;
+	name[6] = '\0';
+	return ((const char *) name);
 }
 
 /*
@@ -96,9 +112,9 @@ void	ft_msleep(long int wait_time)
 	}
 	m_start = 1000 * start.tv_sec + start.tv_usec / 1000;
 	m_now = m_start;
-	while (m_now - m_start <= wait_time)
+	while (m_now - m_start < wait_time)
 	{
-		usleep(400);
+		usleep(500);
 		if (gettimeofday(&now, NULL) != 0)
 		{
 			write(2, "ft_msleep() : gettimeofday error\n", 34);
@@ -106,4 +122,5 @@ void	ft_msleep(long int wait_time)
 		}
 		m_now = 1000 * now.tv_sec + now.tv_usec / 1000;
 	}
+	usleep(500);
 }
