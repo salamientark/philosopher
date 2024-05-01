@@ -1,4 +1,0 @@
-./philo_bonus '10' 2000 10 10 5
-Too long, death checker wait until next time philo should die.
-So it waits 2000 before checking if philo die + if we join it 
-we are waiting for it
