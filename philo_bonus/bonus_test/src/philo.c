@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 09:59:49 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:33:56 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,19 +132,6 @@ static void	exit_philo_routine(t_data *data)
 	sem_unlink(sem_name(data->philo_id, 'd', name));
 }
 
-void	*check_simulation_end(void *param)
-{
-	t_data *data;
-
-	data = (t_data *)param;
-	sem_wait(data->end_simu);
-	sem_wait(data->dead_sem);
-	data->philo_live = 0;
-	sem_post(data->dead_sem);
-	sem_post(data->end_simu);
-	return ((void *) NULL);
-}
-
 /*
 	The sem_post( meal_sem ) only happen if the philo didn't die to signal
 	to the main process it should not kill everybody for the moment.
@@ -158,17 +145,16 @@ void	philo_routine(t_data *data)
 	sem_wait(data->simulation_stop);
 	sem_wait(data->meal_sem);
 	data->last_meal = data->simulation_start_time;
-	if (pthread_create(&death_thread, NULL, death_checker, (void *)data) != 0)
-	{
-		sem_post(data->simulation_stop);
-		print_error("philo_routine", "pthread_create error");
-		exit(EXIT_FAILURE);
-	}
 	if (pthread_create(&end_simu, NULL, check_simulation_end, (void *)data) != 0)
 	{
 		sem_post(data->simulation_stop);
-		print_error("philo_routine", "pthread_create error");
-		exit(EXIT_FAILURE);
+		exit_simulation(data, "philo_routine", "pthread_create error");
+	}
+	if (pthread_create(&death_thread, NULL, death_checker, (void *)data) != 0)
+	{
+		sem_post(data->simulation_stop);
+		sem_post(data->end_simu);
+		exit_simulation(data, "philo_routine", "pthread_create error");
 	}
 	wait_simulation_start(data);
 	philo_live(data);

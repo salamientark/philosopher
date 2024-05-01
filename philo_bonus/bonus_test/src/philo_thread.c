@@ -1,16 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   death_checker.c                                    :+:      :+:    :+:   */
+/*   philo_thread.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:14:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:07:03 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:48:31 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
+
+/*
+	Check if the simulation end : if another philo die
+	it will 'kill' every philo properly leaving time to exit properly
+*/
+void	*check_simulation_end(void *param)
+{
+	t_data	*data;
+
+	data = (t_data *)param;
+	sem_wait(data->end_simu);
+	sem_wait(data->dead_sem);
+	data->philo_live = 0;
+	sem_post(data->dead_sem);
+	sem_post(data->end_simu);
+	return ((void *) NULL);
+}
 
 /*
 	death_checker is the routine associated to a philo thread.
@@ -39,7 +56,6 @@ static void	prepare_to_die(t_data *data, struct timeval last_meal_cp)
 	{
 		log_philo(data, DIED);
 		return ;
-		// exit(EXIT_SUCCESS);
 	}
 	ft_msleep(data->time_to_die - ms_since_last_meal - 2);
 	while (ms_since_last_meal < data->time_to_die)
@@ -50,6 +66,18 @@ static void	prepare_to_die(t_data *data, struct timeval last_meal_cp)
 			+ (now.tv_usec - last_meal_cp.tv_usec) / 1000;
 		usleep(500);
 	}
+}
+
+static int	philo_died(t_data *data)
+{
+	sem_wait(data->dead_sem);
+	if (data->philo_live == 0)
+	{
+		sem_post(data->dead_sem);
+		return (1);
+	}
+	sem_wait(data->dead_sem);
+	return (0);
 }
 
 /*
@@ -77,12 +105,7 @@ void	*death_checker(void *param)
 		}
 		last_meal_cp = data->last_meal;
 		sem_post(data->eat_sem);
-		sem_wait(data->dead_sem);
-		if (data->philo_live == 0)
-		{
-			sem_post(data->dead_sem);
+		if (philo_died(data))
 			return ((void *) NULL);
-		}
-		sem_post(data->dead_sem);
 	}
 }

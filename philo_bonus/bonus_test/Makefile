@@ -9,7 +9,7 @@ PROJECT_DIR = ./
 SRC_DIR = src
 SRC_FILE = utils.c \
 			init_simulation.c \
-			death_checker.c \
+			philo_thread.c \
 			philo.c \
 			main.c
 			   

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 20:32:33 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:34:24 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ const char	*sem_name(int id, char type, char name[]);
 // init_simulation.c;
 t_data		*init_simulation(int ac, char **av);
 
-// check_deather.c
+// philo_thread.c
+void		*check_simulation_end(void *param);
 void		*death_checker(void *param);
 
 // philo.c

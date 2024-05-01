@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:03:49 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:15:10 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,8 +134,6 @@ int	main(int ac, char **av)
 	while (index < data->philo_nbr)
 	{
 		waitpid(-1, NULL, 0);
-		// wait(NULL);
-		printf("Sucesfully waited %d\n", index);
 		index++;
 	}
 	exit_simulation(data, NULL, NULL);

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/04/30 20:38:18 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 10:40:21 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,13 @@ static void	init_data(t_data *data_p, int ac, char **av)
 	{
 		free(data_p);
 		print_error("philo", INVALID_ARG);
-		exit(EXIT_SUCCESS);
+		exit(EXIT_FAILURE);
 	}
 	data_p->philo_pid = (pid_t *)malloc(sizeof(pid_t) * data_p->philo_nbr);
 	if (!data_p->philo_pid)
 	{
 		free(data_p);
-		printf("%s : %s\n", "philo", INVALID_ARG);
+		print_error("init_data", "malloc error");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -78,7 +78,10 @@ static void	add_philo_sem(t_data *data)
 	data->dead_sem = sem_open(sem_name(data->philo_id, 'd', name), O_CREAT
 			| O_EXCL, 0660, 1);
 	if (data->dead_sem == SEM_FAILED)
+	{
+		sem_post(data->end_simu);
 		exit_simulation(data, "init_semaphore", "sem_open failed");
+	}
 	sem_unlink(sem_name(data->philo_id, 'e', name));
 	data->eat_sem = sem_open(sem_name(data->philo_id, 'e', name), O_CREAT
 			| O_EXCL, 0660, 1);
@@ -86,6 +89,7 @@ static void	add_philo_sem(t_data *data)
 	{
 		sem_close(data->dead_sem);
 		sem_unlink(sem_name(data->philo_id, 'd', name));
+		sem_post(data->end_simu);
 		exit_simulation(data, "init_semaphore", "sem_open failed");
 	}
 }
