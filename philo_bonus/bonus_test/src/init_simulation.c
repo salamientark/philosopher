@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 09:15:44 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:40:21 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:22:07 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static void	init_data(t_data *data_p, int ac, char **av)
 		data_p->meal_to_take = ft_atoi(av[5]);
 	if (data_p->philo_nbr <= 0 || data_p->time_to_die <= 0
 		|| data_p->time_to_eat <= 0 || data_p->time_to_sleep <= 0
-		|| data_p->meal_to_take == -2)
+		|| data_p->meal_to_take == -2 || data_p->philo_nbr > MAX_PHILO_NBR)
 	{
 		free(data_p);
 		print_error("philo", INVALID_ARG);
@@ -132,23 +132,26 @@ t_data	*init_simulation(int ac, char **av)
 {
 	t_data	*data;
 
-	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_MEAL);
-	sem_unlink(SEM_STDOUT);
-	sem_unlink(SEM_SIMULAION_STOP);
-	sem_unlink(SEM_END_SIMU);
 	data = (t_data *)malloc(sizeof(t_data));
 	if (!data)
-	{
 		print_error("init_simulation", "malloc error");
+	if (!data)
 		exit(EXIT_FAILURE);
-	}
 	init_data(data, ac, av);
+	if (data->philo_nbr == 1)
+	{
+		printf("0 1 has taken a fork\n");
+		ft_msleep(data->time_to_die);
+		printf("%ld 1 died\n", data->time_to_die);
+		free(data->philo_pid);
+		free(data);
+		exit(EXIT_SUCCESS);
+	}
 	init_semaphore(data);
 	sem_wait(data->end_simu);
 	if (data->meal_to_take == 0)
 		exit_simulation(data, NULL, NULL);
-	if (data->philo_nbr > 200)
+	if (data->philo_nbr > MAX_PHILO_NBR)
 		exit_simulation(data, "too much philosopher", "(max_limit = 200)");
 	init_philo(data);
 	return (data);

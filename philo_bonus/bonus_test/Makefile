@@ -10,6 +10,7 @@ SRC_DIR = src
 SRC_FILE = utils.c \
 			init_simulation.c \
 			philo_thread.c \
+			philo_utils.c \
 			philo.c \
 			main.c
 			   

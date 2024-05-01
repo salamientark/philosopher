@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:02:58 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:24:42 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,22 +60,14 @@ static void	philo_live(t_data *data)
 		log_philo(data, TAKE_FORK);
 		sem_wait(data->fork);
 		log_philo(data, TAKE_FORK);
-		if (log_philo(data, EAT))
-			return ((void) sem_post(data->fork), (void) sem_post(data->fork));
-		sem_wait(data->eat_sem);
-		if (gettimeofday(&data->last_meal, NULL) != 0)
-			exit_child(data, "check_death", "gettimeofday error");
-		sem_post(data->eat_sem);
-		ft_msleep(data->time_to_eat);
-		sem_post(data->fork);
-		sem_post(data->fork);
+		if (philo_eat(data) == 1)
+			break ;
 		if (data->meal_to_take > 0)
 			data->meal_to_take--;
 		if (data->meal_to_take == 0)
 			break ;
-		if (log_philo(data, SLEEP))
+		if (philo_sleep(data) == 1)
 			break ;
-		ft_msleep(data->time_to_sleep);
 		log_philo(data, THINK);
 		delay(data);
 	}
@@ -104,6 +96,8 @@ static void	wait_simulation_start(t_data *data)
 			exit_child(data, "philo_routine", "gettimeofday error");
 		now_ms = 1000 * now.tv_sec + now.tv_usec / 1000;
 	}
+	// if (data->time_to_eat > data->time_to_die)
+	// 	return ;
 	if (data->philo_nbr % 2 == 0)
 		return (ft_msleep(data->time_to_eat * (data->philo_id % 2 == 1)));
 	philo_sync = data->philo_nbr / 2;
@@ -159,7 +153,10 @@ void	philo_routine(t_data *data)
 		sem_post(data->end_simu);
 		exit_simulation(data, "philo_routine", "pthread_create error");
 	}
-	wait_simulation_start(data);
+	if (data->time_to_die < data->time_to_die)
+		wait_simulation_start(data);
+	else
+		usleep((data->philo_nbr % 2 == 0) * 500);
 	philo_live(data);
 	exit_philo_routine(data, death_thread, end_simu);
 	free(data->philo_pid);

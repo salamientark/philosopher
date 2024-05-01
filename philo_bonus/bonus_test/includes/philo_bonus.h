@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:40:30 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:56:28 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:50:04 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,13 @@
 
 # define INT_MAX 2147483647
 # define INT_MIN -2147483648
+# define MAX_PHILO_NBR 200
 # define BAD_ARG_NBR "./philo_bonus [ philo_nbr ] [ time_to_die ] \
 [ time_to_eat ] [ time_to_sleep ] \
 *[ number_of_meal_each_philo_must_have ]*\n\
 number_of_meal_each_philo_must_have : Optionnal argument"
 # define INVALID_ARG "Argument need to be strictly positive integer\n\
-Except [ philo_nbr ], which need to be superior to 1"
+Except [ philo_nbr ], which need to be between 1-200"
 # define TAKE_FORK "has taken a fork"
 # define DIED "died"
 # define EAT "is eating"
@@ -80,10 +81,13 @@ t_data		*init_simulation(int ac, char **av);
 void		*check_simu_end(void *param);
 void		*death_checker(void *param);
 
-// philo.c
+// philo_utils.c
+int			philo_eat(t_data *data);
+int			philo_sleep(t_data *data);
 int			log_philo(t_data *data, char *msg);
-void		philo_routine(t_data *data);
 
+// philo.c
+void		philo_routine(t_data *data);
 void		exit_simulation(t_data *data, char *func, char *err_msg);
 
 #endif

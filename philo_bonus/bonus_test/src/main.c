@@ -6,43 +6,11 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:08:58 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:47:37 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo_bonus.h"
-
-/*
-	Print action + block and exit if philo died
-*/
-int	log_philo(t_data *data, char *msg)
-{
-	struct timeval	now;
-	int				timestamp;
-
-	sem_wait(data->stdout_sem);
-	sem_wait(data->dead_sem);
-	if (data->philo_live == 0)
-		return (sem_post(data->simulation_stop), sem_post(data->dead_sem),
-			sem_post(data->stdout_sem), 1);
-	sem_post(data->dead_sem);
-	if (gettimeofday(&now, NULL) != 0)
-		exit_child(data, "check_death", "gettimeofday error");
-	timestamp = (now.tv_sec - data->simulation_start_time.tv_sec) * 1000
-		+ (now.tv_usec - data->simulation_start_time.tv_usec) / 1000;
-	printf("%d %d %s\n", timestamp, data->philo_id + 1, msg);
-	if (*msg == 'd')
-	{
-		sem_post(data->simulation_stop);
-		sem_wait(data->dead_sem);
-		data->philo_live = 0;
-		sem_post(data->dead_sem);
-		usleep(10000);
-		return (sem_post(data->stdout_sem), 1);
-	}
-	sem_post(data->stdout_sem);
-	return (0);
-}
 
 /*
 	DESTROY SEMAPHORE, free(data) EXIT_ERROR
@@ -131,6 +99,11 @@ int	main(int ac, char **av)
 		printf("philo : %s\n", BAD_ARG_NBR);
 		exit(EXIT_SUCCESS);
 	}
+	sem_unlink(SEM_FORK);
+	sem_unlink(SEM_MEAL);
+	sem_unlink(SEM_STDOUT);
+	sem_unlink(SEM_SIMULAION_STOP);
+	sem_unlink(SEM_END_SIMU);
 	data = init_simulation(ac, av);
 	if (pthread_create(&meal_checker, NULL, meal_check, (void *)data) != 0)
 	{
