@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 08:39:47 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:15:10 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:06:06 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,18 +87,23 @@ static void	*meal_check(void *param)
 	return ((void *) NULL);
 }
 
-static void	kill_child(t_data *data)
-{
-	int	index;
+// static void	kill_child(t_data *data)
+// {
+// 	int	index;
 
-	index = 0;
-	usleep(500);
-	while (index < data->philo_nbr)
-	{
-		kill(data->philo_pid[index], SIGKILL);
-		index++;
-	}
-}
+// 	index = 0;
+// 	usleep(500);
+// 	while (index < data->philo_nbr)
+// 	{
+// 		kill(data->philo_pid[index], SIGKILL);
+// 		index++;
+// 	}
+// }
+
+// static void	end_simulation(t_data *data, pthread_t meal_checker)
+// {
+	// 
+// }
 
 /*
 	Init data
@@ -119,7 +124,8 @@ int	main(int ac, char **av)
 	data = init_simulation(ac, av);
 	if (pthread_create(&meal_checker, NULL, meal_check, (void *)data) != 0)
 	{
-		kill_child(data);
+		sem_post(data->end_simu);
+		ft_msleep(100);
 		exit_simulation(data, "main", "pthread_create failed");
 	}
 	ft_msleep(999);
@@ -131,11 +137,8 @@ int	main(int ac, char **av)
 		sem_post(data->meal_sem);
 	pthread_join(meal_checker, NULL);
 	index = 0;
-	while (index < data->philo_nbr)
-	{
+	while (index++ < data->philo_nbr)
 		waitpid(-1, NULL, 0);
-		index++;
-	}
 	exit_simulation(data, NULL, NULL);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/23 15:14:49 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:48:31 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:00:31 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 	Check if the simulation end : if another philo die
 	it will 'kill' every philo properly leaving time to exit properly
 */
-void	*check_simulation_end(void *param)
+void	*check_simu_end(void *param)
 {
 	t_data	*data;
 
@@ -76,7 +76,7 @@ static int	philo_died(t_data *data)
 		sem_post(data->dead_sem);
 		return (1);
 	}
-	sem_wait(data->dead_sem);
+	sem_post(data->dead_sem);
 	return (0);
 }
 

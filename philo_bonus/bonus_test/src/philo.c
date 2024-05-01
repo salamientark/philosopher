@@ -6,7 +6,7 @@
 /*   By: dbaladro <dbaladro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 14:52:59 by dbaladro          #+#    #+#             */
-/*   Updated: 2024/05/01 10:33:56 by dbaladro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:02:58 by dbaladro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,11 +61,7 @@ static void	philo_live(t_data *data)
 		sem_wait(data->fork);
 		log_philo(data, TAKE_FORK);
 		if (log_philo(data, EAT))
-		{
-			sem_post(data->fork);
-			sem_post(data->fork);
-			break ;
-		}
+			return ((void) sem_post(data->fork), (void) sem_post(data->fork));
 		sem_wait(data->eat_sem);
 		if (gettimeofday(&data->last_meal, NULL) != 0)
 			exit_child(data, "check_death", "gettimeofday error");
@@ -117,10 +113,17 @@ static void	wait_simulation_start(t_data *data)
 		ft_msleep(data->time_to_eat - 1);
 }
 
-static void	exit_philo_routine(t_data *data)
+static void	exit_philo_routine(t_data *data, pthread_t death_thread,
+	pthread_t end_simu)
 {
 	char		name[7];
 
+	sem_post(data->meal_sem);
+	sem_wait(data->dead_sem);
+	data->philo_live = 0;
+	sem_post(data->dead_sem);
+	pthread_join(death_thread, (void **) NULL);
+	pthread_join(end_simu, (void **) NULL);
 	sem_close(data->simulation_stop);
 	sem_close(data->stdout_sem);
 	sem_close(data->fork);
@@ -145,7 +148,7 @@ void	philo_routine(t_data *data)
 	sem_wait(data->simulation_stop);
 	sem_wait(data->meal_sem);
 	data->last_meal = data->simulation_start_time;
-	if (pthread_create(&end_simu, NULL, check_simulation_end, (void *)data) != 0)
+	if (pthread_create(&end_simu, NULL, check_simu_end, (void *)data) != 0)
 	{
 		sem_post(data->simulation_stop);
 		exit_simulation(data, "philo_routine", "pthread_create error");
@@ -158,13 +161,7 @@ void	philo_routine(t_data *data)
 	}
 	wait_simulation_start(data);
 	philo_live(data);
-	sem_post(data->meal_sem);
-	sem_wait(data->dead_sem);
-	data->philo_live = 0;
-	sem_post(data->dead_sem);
-	pthread_join(death_thread, (void **) NULL);
-	pthread_join(end_simu, (void **) NULL);
-	exit_philo_routine(data);
+	exit_philo_routine(data, death_thread, end_simu);
 	free(data->philo_pid);
 	free(data);
 }
